@@ -25,7 +25,7 @@ resource "google_compute_project_metadata_item" "fqdn_mtls" {
 
 resource "google_compute_project_metadata_item" "tls_cert" {
   key   = "zentral_tls_cert"
-  value = "UNDEFINED"
+  value = var.tls_cert
 
   # not managed by tf
   lifecycle {
@@ -37,7 +37,7 @@ resource "google_compute_project_metadata_item" "tls_cert" {
 
 resource "google_compute_project_metadata_item" "tls_chain" {
   key   = "zentral_tls_chain"
-  value = "UNDEFINED"
+  value = var.tls_chain
 
   # not managed by tf
   lifecycle {

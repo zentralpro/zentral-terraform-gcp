@@ -51,6 +51,18 @@ variable "fqdn_mtls" {
   default = "UNDEFINED"
 }
 
+variable "tls_cert" {
+  default = "UNDEFINED"
+}
+
+variable "tls_chain" {
+  default = "UNDEFINED"
+}
+
+variable "tls_privkey" {
+  default = "UNDEFINED"
+}
+
 variable "tls_cachain" {
   default = "UNDEFINED"
 }
@@ -115,6 +127,18 @@ variable "smtp_relay_user" {
 
 variable "smtp_relay_password" {
   default = "UNDEFINED"
+}
+
+# CrowdStrike
+
+variable "crowdstrike_cid" {
+  description = "CrowdStrike Customer ID Checksum for the Falcon Agent"
+  default     = "UNDEFINED"
+}
+
+variable "crowdstrike_deb" {
+  description = "Filename (Key) of the CrowdStrike Falcon Agent deb installer package on the dist bucket"
+  default     = "UNDEFINED"
 }
 
 # DANGER - ONLY FOR TESTS!!!

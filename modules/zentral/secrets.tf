@@ -22,6 +22,12 @@ resource "google_secret_manager_secret_iam_member" "tls_privkey" {
   member    = "serviceAccount:${google_service_account.web.email}"
 }
 
+# tls_privkey value or placeholder
+resource "google_secret_manager_secret_version" "tls_privkey" {
+  secret      = google_secret_manager_secret.tls_privkey.id
+  secret_data = var.tls_privkey
+}
+
 #
 # db_password: zentral user password for postgres db
 #
