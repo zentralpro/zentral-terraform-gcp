@@ -13,6 +13,8 @@ resource "google_sql_database_instance" "zentral" {
       private_network = var.network_id
     }
   }
+
+  deletion_protection = var.destroy_all_resources != true
 }
 
 resource "google_sql_database" "zentral" {

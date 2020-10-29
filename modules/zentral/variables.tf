@@ -112,3 +112,9 @@ variable "smtp_relay_user" {
 variable "smtp_relay_password" {
   default = "UNDEFINED"
 }
+
+# DANGER - ONLY FOR TESTS!!!
+variable "destroy_all_resources" {
+  description = "Set to true during testing to remove the db deletion protection and allow non-empty bucket deletion"
+  default     = false
+}

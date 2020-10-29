@@ -11,6 +11,7 @@ resource "google_storage_bucket" "zentral" {
   location                    = var.region
   storage_class               = "REGIONAL"
   uniform_bucket_level_access = true
+  force_destroy               = var.destroy_all_resources
 }
 
 # allow the web service account RW access to the zentral bucket
@@ -40,6 +41,7 @@ resource "google_storage_bucket" "elastic" {
   location                    = var.region
   storage_class               = "REGIONAL"
   uniform_bucket_level_access = true
+  force_destroy               = var.destroy_all_resources
 }
 
 # allow the ek service account RW access to the elactic bucket
