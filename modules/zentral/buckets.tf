@@ -50,3 +50,40 @@ resource "google_storage_bucket_iam_member" "elastic-bucket-service-account" {
   role   = "roles/storage.admin"
   member = "serviceAccount:${google_service_account.ek.email}"
 }
+
+#
+# dist
+#
+
+# bucket for the distribution of extra software
+resource "google_storage_bucket" "dist" {
+  name = "ztl-dist-${var.project_id}"
+  labels = {
+    usage = "dist"
+  }
+  location                    = var.region
+  storage_class               = "REGIONAL"
+  uniform_bucket_level_access = true
+  force_destroy               = var.destroy_all_resources
+}
+
+# allow the ek service account R access to the dist bucket
+resource "google_storage_bucket_iam_member" "dist-bucket-ek-service-account" {
+  bucket = google_storage_bucket.dist.name
+  role   = "roles/storage.objectViewer"
+  member = "serviceAccount:${google_service_account.ek.email}"
+}
+
+# allow the web service account R access to the dist bucket
+resource "google_storage_bucket_iam_member" "dist-bucket-web-service-account-access" {
+  bucket = google_storage_bucket.dist.name
+  role   = "roles/storage.objectViewer"
+  member = "serviceAccount:${google_service_account.web.email}"
+}
+
+# allow the worker service account R access to the zentral bucket
+resource "google_storage_bucket_iam_member" "dist-bucket-worker-service-account-access" {
+  bucket = google_storage_bucket.dist.name
+  role   = "roles/storage.objectViewer"
+  member = "serviceAccount:${google_service_account.worker.email}"
+}
