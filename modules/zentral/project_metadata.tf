@@ -86,3 +86,8 @@ resource "google_compute_project_metadata_item" "smtp_relay_user" {
   key   = "zentral_smtp_relay_user"
   value = var.smtp_relay_user
 }
+
+resource "google_compute_project_metadata_item" "crowdstrike_deb" {
+  key   = "zentral_crowdstrike_deb"
+  value = var.crowdstrike_deb
+}

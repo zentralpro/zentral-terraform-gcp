@@ -366,3 +366,47 @@ resource "google_secret_manager_secret_version" "smtp_relay_password" {
   secret      = google_secret_manager_secret.smtp_relay_password.id
   secret_data = var.smtp_relay_password
 }
+
+#
+# crowdstrike_cid
+#
+
+# crowdstrike_cid secret
+resource "google_secret_manager_secret" "crowdstrike_cid" {
+  secret_id = "ztl-crowdstrike-cid"
+
+  replication {
+    user_managed {
+      replicas {
+        location = var.region
+      }
+    }
+  }
+}
+
+# crowdstrike_cid read access for ek service accounts
+resource "google_secret_manager_secret_iam_member" "crowdstrike_cid_ek" {
+  secret_id = google_secret_manager_secret.crowdstrike_cid.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.ek.email}"
+}
+
+# crowdstrike_cid read access for web service accounts
+resource "google_secret_manager_secret_iam_member" "crowdstrike_cid_web" {
+  secret_id = google_secret_manager_secret.crowdstrike_cid.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.web.email}"
+}
+
+# crowdstrike_cid read access for worker service accounts
+resource "google_secret_manager_secret_iam_member" "crowdstrike_cid_worker" {
+  secret_id = google_secret_manager_secret.crowdstrike_cid.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.worker.email}"
+}
+
+# crowdstrike_cid value
+resource "google_secret_manager_secret_version" "crowdstrike_cid" {
+  secret      = google_secret_manager_secret.crowdstrike_cid.id
+  secret_data = var.crowdstrike_cid
+}
