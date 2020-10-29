@@ -7,7 +7,8 @@ resource "google_sql_database_instance" "zentral" {
   database_version = "POSTGRES_12"
 
   settings {
-    tier = "db-g1-small"
+    tier      = var.db_tier
+    disk_size = 10
     ip_configuration {
       ipv4_enabled    = false
       private_network = var.network_id

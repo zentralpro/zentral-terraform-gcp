@@ -95,6 +95,10 @@ variable "ek_machine_type" {
   default = "custom-1-5120"
 }
 
+variable "db_tier" {
+  default = "db-custom-1-3840"
+}
+
 # smtp
 
 variable "default_from_email" {
