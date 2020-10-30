@@ -9,7 +9,7 @@ resource "google_secret_manager_secret" "tls_privkey" {
   replication {
     user_managed {
       replicas {
-        location = var.region
+        location = data.google_client_config.current.region
       }
     }
   }
@@ -39,7 +39,7 @@ resource "google_secret_manager_secret" "db_password" {
   replication {
     user_managed {
       replicas {
-        location = var.region
+        location = data.google_client_config.current.region
       }
     }
   }
@@ -81,7 +81,7 @@ resource "google_secret_manager_secret" "api_secret" {
   replication {
     user_managed {
       replicas {
-        location = var.region
+        location = data.google_client_config.current.region
       }
     }
   }
@@ -123,7 +123,7 @@ resource "google_secret_manager_secret" "django_secret_key" {
   replication {
     user_managed {
       replicas {
-        location = var.region
+        location = data.google_client_config.current.region
       }
     }
   }
@@ -161,7 +161,7 @@ resource "google_secret_manager_secret" "web_private_key" {
   replication {
     user_managed {
       replicas {
-        location = var.region
+        location = data.google_client_config.current.region
       }
     }
   }
@@ -192,7 +192,7 @@ resource "google_secret_manager_secret" "worker_private_key" {
   replication {
     user_managed {
       replicas {
-        location = var.region
+        location = data.google_client_config.current.region
       }
     }
   }
@@ -223,7 +223,7 @@ resource "google_secret_manager_secret" "ek_private_key" {
   replication {
     user_managed {
       replicas {
-        location = var.region
+        location = data.google_client_config.current.region
       }
     }
   }
@@ -253,7 +253,7 @@ resource "google_secret_manager_secret" "geolite2_license_key" {
   replication {
     user_managed {
       replicas {
-        location = var.region
+        location = data.google_client_config.current.region
       }
     }
   }
@@ -290,7 +290,7 @@ resource "google_secret_manager_secret" "datadog_api_key" {
   replication {
     user_managed {
       replicas {
-        location = var.region
+        location = data.google_client_config.current.region
       }
     }
   }
@@ -334,7 +334,7 @@ resource "google_secret_manager_secret" "smtp_relay_password" {
   replication {
     user_managed {
       replicas {
-        location = var.region
+        location = data.google_client_config.current.region
       }
     }
   }
@@ -378,7 +378,7 @@ resource "google_secret_manager_secret" "crowdstrike_cid" {
   replication {
     user_managed {
       replicas {
-        location = var.region
+        location = data.google_client_config.current.region
       }
     }
   }

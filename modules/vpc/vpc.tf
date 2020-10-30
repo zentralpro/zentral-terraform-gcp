@@ -92,7 +92,7 @@ resource "google_compute_firewall" "allow-kibana" {
 // add data router
 resource "google_compute_router" "nat-router" {
   name    = "ztl-nat-router"
-  region  = var.region
+  region  = data.google_client_config.current.region
   network = google_compute_network.zentral.name
 }
 
@@ -100,7 +100,7 @@ resource "google_compute_router" "nat-router" {
 resource "google_compute_router_nat" "nat-config" {
   name                               = "ztl-nat-config"
   router                             = google_compute_router.nat-router.name
-  region                             = var.region
+  region                             = data.google_client_config.current.region
   nat_ip_allocate_option             = "AUTO_ONLY"
   source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
 }

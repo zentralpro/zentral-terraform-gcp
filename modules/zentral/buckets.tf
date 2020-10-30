@@ -4,11 +4,11 @@
 
 # bucket for the zentral app django file storage
 resource "google_storage_bucket" "zentral" {
-  name = "ztl-zentral-${var.project_id}"
+  name = "ztl-zentral-${data.google_client_config.current.project}"
   labels = {
     usage = "zentral"
   }
-  location                    = var.region
+  location                    = data.google_client_config.current.region
   storage_class               = "REGIONAL"
   uniform_bucket_level_access = true
   force_destroy               = var.destroy_all_resources
@@ -34,11 +34,11 @@ resource "google_storage_bucket_iam_member" "zentral-bucket-worker-service-accou
 
 # bucket for the elasticsearch backups
 resource "google_storage_bucket" "elastic" {
-  name = "ztl-elastic-${var.project_id}"
+  name = "ztl-elastic-${data.google_client_config.current.project}"
   labels = {
     usage = "elastic"
   }
-  location                    = var.region
+  location                    = data.google_client_config.current.region
   storage_class               = "REGIONAL"
   uniform_bucket_level_access = true
   force_destroy               = var.destroy_all_resources
@@ -57,11 +57,11 @@ resource "google_storage_bucket_iam_member" "elastic-bucket-service-account" {
 
 # bucket for the distribution of extra software
 resource "google_storage_bucket" "dist" {
-  name = "ztl-dist-${var.project_id}"
+  name = "ztl-dist-${data.google_client_config.current.project}"
   labels = {
     usage = "dist"
   }
-  location                    = var.region
+  location                    = data.google_client_config.current.region
   storage_class               = "REGIONAL"
   uniform_bucket_level_access = true
   force_destroy               = var.destroy_all_resources

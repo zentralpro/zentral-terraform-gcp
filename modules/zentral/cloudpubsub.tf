@@ -13,7 +13,7 @@ resource "google_pubsub_topic" "raw_events" {
 
   message_storage_policy {
     allowed_persistence_regions = [
-      var.region,
+      data.google_client_config.current.region,
     ]
   }
 }
@@ -23,7 +23,7 @@ resource "google_pubsub_topic" "events" {
 
   message_storage_policy {
     allowed_persistence_regions = [
-      var.region,
+      data.google_client_config.current.region,
     ]
   }
 }
@@ -33,7 +33,7 @@ resource "google_pubsub_topic" "enriched_events" {
 
   message_storage_policy {
     allowed_persistence_regions = [
-      var.region,
+      data.google_client_config.current.region,
     ]
   }
 }

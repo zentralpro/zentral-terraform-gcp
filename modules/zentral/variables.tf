@@ -1,18 +1,3 @@
-# Google project ID
-variable "project_id" {
-  type = string
-}
-
-# default Google region
-variable "region" {
-  default = "us-east1"
-}
-
-# default Google zone
-variable "default_zone" {
-  default = "us-east1-c"
-}
-
 # vpc network id
 variable "network_id" {
   type = string

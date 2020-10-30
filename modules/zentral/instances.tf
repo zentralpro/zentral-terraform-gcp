@@ -44,7 +44,7 @@ resource "google_compute_region_instance_group_manager" "web" {
   }
 
   base_instance_name = "ztl-web"
-  region             = var.region
+  region             = data.google_client_config.current.region
 
   target_pools = [google_compute_target_pool.web.id]
   target_size  = var.web_mig_target_size
@@ -96,7 +96,7 @@ resource "google_compute_region_instance_group_manager" "worker" {
   }
 
   base_instance_name = "ztl-worker"
-  region             = var.region
+  region             = data.google_client_config.current.region
 
   target_size = var.worker_mig_target_size
 }
