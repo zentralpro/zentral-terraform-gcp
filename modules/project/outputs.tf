@@ -7,3 +7,8 @@ output "name" {
   value       = google_project.this.name
   description = "The project name"
 }
+
+output "number" {
+  value       = google_project.this.number
+  description = "The project number"
+}
