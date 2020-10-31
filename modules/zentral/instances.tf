@@ -26,7 +26,7 @@ resource "google_compute_instance_template" "web" {
 
   metadata_startup_script = <<EOT
 #!/bin/bash
-ztl_admin setup
+ztl_admin --no-ts setup
 EOT
 
   lifecycle {
@@ -78,7 +78,7 @@ resource "google_compute_instance_template" "worker" {
 
   metadata_startup_script = <<EOT
 #!/bin/bash
-ztl_admin setup
+ztl_admin --no-ts setup
 EOT
 
   lifecycle {
@@ -130,7 +130,7 @@ resource "google_compute_instance" "ek1" {
 
   metadata_startup_script = <<EOT
 #!/bin/bash
-ztl_admin setup
+ztl_admin --no-ts setup
 EOT
 
 }
