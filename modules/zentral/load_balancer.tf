@@ -1,8 +1,7 @@
-resource "google_compute_https_health_check" "web" {
+resource "google_compute_http_health_check" "web" {
   name         = "ztl-web-health-check"
-  request_path = "/health_check/"
-  host         = var.fqdn
-  port         = 443
+  request_path = "/app-health-check"
+  port         = 8080
 }
 
 resource "google_compute_target_pool" "web" {
@@ -10,7 +9,7 @@ resource "google_compute_target_pool" "web" {
   region = data.google_client_config.current.region
 
   health_checks = [
-    google_compute_https_health_check.web.self_link,
+    google_compute_http_health_check.web.self_link,
   ]
 }
 
