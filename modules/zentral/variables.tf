@@ -3,11 +3,6 @@ variable "network_id" {
   type = string
 }
 
-# vpc network name
-variable "network_name" {
-  type = string
-}
-
 # vpc subnetwork name
 variable "subnetwork_name" {
   type = string

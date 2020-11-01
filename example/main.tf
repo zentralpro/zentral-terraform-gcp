@@ -10,6 +10,10 @@ provider "google" {
 module "vpc" {
   source = "git@github.com:zentralpro/zentral-terraform-gcp.git//modules/vpc?ref=v0.1.0"
 
+  depends_on = [
+    google_project_service.service
+  ]
+
   # The CIDR block for the subnet
   # subnet = "10.0.1.0/24"
 }
@@ -17,9 +21,11 @@ module "vpc" {
 module "zentral" {
   source = "git@github.com:zentralpro/zentral-terraform-gcp.git//modules/zentral?ref=v0.1.0"
 
-  depends_on      = [module.vpc]
+  depends_on = [
+    module.vpc, # for the google_service_networking_connection, no implicit dependency
+  ]
+
   network_id      = module.vpc.network_id
-  network_name    = module.vpc.network_name
   subnetwork_name = module.vpc.subnetwork_name
 
 
@@ -89,7 +95,7 @@ module "zentral" {
   # datadog_api_key is a secret, so it is defined in variables.tf,
   # and can be passed in the environment. Do not set it here.
   # default = "UNDEFINED" → Datadog will not be configured.
-  # datadog_api_key = "UNDEFINED"
+  # datadog_api_key = var.datadog_api_key
 
 
   ########################
