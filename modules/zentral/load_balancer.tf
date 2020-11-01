@@ -10,7 +10,7 @@ resource "google_compute_target_pool" "web" {
   region = data.google_client_config.current.region
 
   health_checks = [
-    google_compute_http_health_check.web.self_link,
+    google_compute_https_health_check.web.self_link,
   ]
 }
 
