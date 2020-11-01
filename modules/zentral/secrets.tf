@@ -26,6 +26,13 @@ resource "google_secret_manager_secret_iam_member" "tls_privkey" {
 resource "google_secret_manager_secret_version" "tls_privkey" {
   secret      = google_secret_manager_secret.tls_privkey.id
   secret_data = var.tls_privkey
+
+  # not managed by tf
+  lifecycle {
+    ignore_changes = [
+      secret_data
+    ]
+  }
 }
 
 #
