@@ -8,6 +8,11 @@ variable "network_name" {
   type = string
 }
 
+# vpc subnetwork name
+variable "subnetwork_name" {
+  type = string
+}
+
 # web instances managed instance group target size
 variable "web_mig_target_size" {
   default = 2

@@ -16,7 +16,7 @@ resource "google_compute_instance_template" "web" {
   }
 
   network_interface {
-    network = var.network_name
+    subnetwork = var.subnetwork_name
   }
 
   service_account {
@@ -68,7 +68,7 @@ resource "google_compute_instance_template" "worker" {
   }
 
   network_interface {
-    network = var.network_name
+    subnetwork = var.subnetwork_name
   }
 
   service_account {
@@ -120,7 +120,7 @@ resource "google_compute_instance" "ek1" {
   }
 
   network_interface {
-    network = var.network_name
+    subnetwork = var.subnetwork_name
   }
 
   service_account {

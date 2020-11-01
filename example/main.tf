@@ -11,9 +11,10 @@ module "vpc" {
 module "zentral" {
   source = "git@github.com:zentralpro/zentral-terraform-gcp.git//modules/zentral?ref=v0.1.0"
 
-  depends_on   = [module.vpc]
-  network_id   = module.vpc.network_id
-  network_name = module.vpc.network_name
+  depends_on      = [module.vpc]
+  network_id      = module.vpc.network_id
+  network_name    = module.vpc.network_name
+  subnetwork_name = module.vpc.subnetwork_name
 
   admin_email        = "admin@example.com"
   admin_username     = "admin"
