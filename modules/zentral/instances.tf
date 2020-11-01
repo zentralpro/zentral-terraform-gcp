@@ -2,6 +2,12 @@
 # web instances
 #
 
+# latest web image when terraform runs
+data "google_compute_image" "web" {
+  family  = "ztl-web"
+  project = var.images_project
+}
+
 # instance template for the web instances
 resource "google_compute_instance_template" "web" {
   name_prefix = "ztl-web-instance-template-"
@@ -11,7 +17,7 @@ resource "google_compute_instance_template" "web" {
   tags         = ["web", "ssh"]
 
   disk {
-    source_image = "sublime-delight-encoder/ztl-web"
+    source_image = data.google_compute_image.web.self_link
     disk_type    = "pd-ssd"
   }
 
@@ -54,6 +60,12 @@ resource "google_compute_region_instance_group_manager" "web" {
 # worker instances
 #
 
+# latest worker image when terraform runs
+data "google_compute_image" "worker" {
+  family  = "ztl-worker"
+  project = var.images_project
+}
+
 # instance template for the worker instances
 resource "google_compute_instance_template" "worker" {
   name_prefix = "ztl-worker-instance-template-"
@@ -63,7 +75,7 @@ resource "google_compute_instance_template" "worker" {
   tags         = ["worker", "ssh"]
 
   disk {
-    source_image = "sublime-delight-encoder/ztl-worker"
+    source_image = data.google_compute_image.worker.self_link
     disk_type    = "pd-ssd"
   }
 
@@ -113,7 +125,7 @@ resource "google_compute_instance" "ek1" {
 
   boot_disk {
     initialize_params {
-      image = "sublime-delight-encoder/ztl-ek"
+      image = "${var.images_project}/ztl-ek"
       size  = 30
       type  = "pd-ssd"
     }

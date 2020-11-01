@@ -80,6 +80,11 @@ variable "datadog_api_key" {
 
 # instances
 
+variable "images_project" {
+  description = "The ID of the project from which the images are distributed"
+  default     = "sublime-delight-encoder"
+}
+
 variable "web_machine_type" {
   default = "custom-1-1024"
 }
