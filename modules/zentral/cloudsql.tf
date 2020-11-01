@@ -2,8 +2,12 @@ resource "random_password" "db" {
   length = 17
 }
 
+resource "random_id" "master_db_suffix" {
+  byte_length = 3
+}
+
 resource "google_sql_database_instance" "zentral" {
-  name             = "ztl-master"
+  name             = "ztl-master-{$random_id.master_db_suffix.hex}"
   database_version = "POSTGRES_12"
 
   settings {
