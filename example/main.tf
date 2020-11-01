@@ -1,11 +1,17 @@
 provider "google" {
+  # the google cloud project
   project = "my-project-id"
-  region  = "us-east1"
-  zone    = "us-east1-c"
+  # default region
+  region = "us-east1"
+  # default zone
+  zone = "us-east1-c"
 }
 
 module "vpc" {
   source = "git@github.com:zentralpro/zentral-terraform-gcp.git//modules/vpc?ref=v0.1.0"
+
+  # The CIDR block for the subnet
+  # subnet = "10.0.1.0/24"
 }
 
 module "zentral" {
@@ -16,13 +22,108 @@ module "zentral" {
   network_name    = module.vpc.network_name
   subnetwork_name = module.vpc.subnetwork_name
 
-  admin_email        = "admin@example.com"
-  admin_username     = "admin"
-  fqdn               = "zentral.example.com"
-  default_from_email = "zentral@example.com"
-  munki_repo_bucket  = "the-munki-repository-bucket-name"
-  base_json          = file("${path.module}/cfg/base.json")
+
+  #####################
+  # FQDN / mTLS / DNS #
+  #####################
+
+  fqdn = "zentral.example.com"
+  # fqdn_mtls = "UNDEFINED"
+
+  # to load the cachain.pem file from the cfg/ subdir, if present
+  # NOTE: both fqdn_mtls and cachain.pem need to be set to enable the mTLS endpoint
+  tls_cachain = fileexists("${path.module}/cfg/cachain.pem") ? file("${path.module}/cfg/cachain.pem") : "UNDEFINED"
+
+
+  ############################
+  # SMTP relay configuration #
+  ############################
+
+  # default_from_email  = "UNDEFINED"
+  # smtp_relay_host     = "UNDEFINED"
+  # smtp_relay_user     = "UNDEFINED"
+
+  # smtp_relay_password is a secret, so it is defined in variables.tf,
+  # and can be passed in the environment. Do not set it here.
+  # default = "UNDEFINED" → the SMTP relay will not be configured.
+  # smtp_relay_password = var.smtp_relay_password
+
+
+  #########################
+  # Zentral configuration #
+  #########################
+
+  # superadmin credentials
+  admin_email    = "admin@example.com"
+  admin_username = "admin"
+
+  # the base.json skeleton that ztl_admin is going to use as template
+  # place a base.json file in the cfg/ subdir, and it will be loaded
+  base_json = file("${path.module}/cfg/base.json")
+
+
+  #################
+  # machine types #
+  #################
+
+  # Web: 1 ⨉ vCPU, 1GB
+  # web_machine_type = "custom-1-1024"
+
+  # Worker: 1 ⨉ vCPU, 1GB
+  # worker_machine_type = "custom-1-1024"
+
+  # Elasticsearch + Kibana: 1 ⨉ vCPU, 5GB
+  # ek_machine_type = "custom-1-5120"
+
+  # DB: 1 ⨉ vCPU, 3.75GB (to unlock the 100 connections)
+  # db_tier = db-custom-1-3840
+
+
+  ####################
+  # Datadog settings #
+  ####################
+
+  # Datadog site: change it to datadoghq.eu if necessary
+  # datadog_site = "datadoghq.com"
+
+  # datadog_api_key is a secret, so it is defined in variables.tf,
+  # and can be passed in the environment. Do not set it here.
+  # default = "UNDEFINED" → Datadog will not be configured.
+  # datadog_api_key = "UNDEFINED"
+
+
+  ########################
+  # Geolite2 credentials #
+  ########################
+
+  # geolite2_account_id = "UNDEFINED"
+
+  # geolite2_license_key is a secret, so it is defined in variables.tf,
+  # and can be passed in the environment. Do not set it here.
+  # default = "UNDEFINED" → Geolite2 will not be configured.
+  # geolite2_license_key = var.geolite2_license_key
+
+
+  ############################
+  # CrowdStrike Falcon agent #
+  ############################
+
+  # The relative name of the debian package in the dist bucket that will be
+  # installed on the instances.
+  # crowdstrike_deb = "UNDEFINED"
+
+  # crowdstrike_cid is a secret, so it is defined in variables.tf,
+  # and can be passed in the environment. Do not set it here.
+  # default = "UNDEFINED" → The CrowdStrike Falcon agent will not be
+  # configured.
+  # crowdstrike_cid = var.crowdstrike_cid
+
+
+  #################
+  # Obscure stuff #
+  #################
 
   # DANGER!!! ONLY DEV!!!
-  destroy_all_resources = true
+  # Set to true during testing to remove the db deletion protection and allow non-empty bucket deletion
+  # destroy_all_resources = false
 }

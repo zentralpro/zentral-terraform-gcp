@@ -75,11 +75,11 @@ variable "base_json" {
 
 # datadog configuration
 
-variable "datadog_api_key" {
-  default = "UNDEFINED"
+variable "datadog_site" {
+  default = "datadoghq.com"
 }
 
-variable "datadog_site" {
+variable "datadog_api_key" {
   default = "UNDEFINED"
 }
 

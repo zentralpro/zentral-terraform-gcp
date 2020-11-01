@@ -1,0 +1,11 @@
+variable "smtp_relay_password" {
+  default = "UNDEFINED"
+}
+
+variable "geolite2_license_key" {
+  default = "UNDEFINED"
+}
+
+variable "crowdstrike_cid" {
+  default = "UNDEFINED"
+}
