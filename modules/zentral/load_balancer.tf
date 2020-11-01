@@ -1,9 +1,8 @@
-resource "google_compute_http_health_check" "web" {
-  name               = "ztl-web-health-check"
-  request_path       = "/instance-health-check"
-  port               = 8080
-  check_interval_sec = 5
-  timeout_sec        = 2
+resource "google_compute_https_health_check" "web" {
+  name         = "ztl-web-health-check"
+  request_path = "/health_check/"
+  host         = var.fqdn
+  port         = 443
 }
 
 resource "google_compute_target_pool" "web" {
