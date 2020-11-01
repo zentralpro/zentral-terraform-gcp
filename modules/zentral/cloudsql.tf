@@ -7,7 +7,7 @@ resource "random_id" "master_db_suffix" {
 }
 
 resource "google_sql_database_instance" "zentral" {
-  name             = "ztl-master-{$random_id.master_db_suffix.hex}"
+  name             = "ztl-master-${random_id.master_db_suffix.hex}"
   database_version = "POSTGRES_12"
 
   settings {
