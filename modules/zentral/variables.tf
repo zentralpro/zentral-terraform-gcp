@@ -74,6 +74,10 @@ variable "datadog_site" {
   default = "datadoghq.com"
 }
 
+variable "datadog_service" {
+  default = "Zentral"
+}
+
 variable "datadog_api_key" {
   default = "UNDEFINED"
 }

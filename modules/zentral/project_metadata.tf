@@ -67,6 +67,11 @@ resource "google_compute_project_metadata_item" "datadog_site" {
   value = var.datadog_site
 }
 
+resource "google_compute_project_metadata_item" "datadog_service" {
+  key   = "zentral_datadog_service"
+  value = var.datadog_service
+}
+
 resource "google_compute_project_metadata_item" "vm_dns_setting" {
   key   = "VmDnsSetting"
   value = "ZonalPreferred"

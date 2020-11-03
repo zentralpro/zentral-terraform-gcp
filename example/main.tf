@@ -91,6 +91,8 @@ module "zentral" {
 
   # Datadog site: change it to datadoghq.eu if necessary
   # datadog_site = "datadoghq.com"
+  # Datadog service: to filter the events
+  # datadog_service = "Zentral"
 
   # datadog_api_key is a secret, so it is defined in variables.tf,
   # and can be passed in the environment. Do not set it here.
