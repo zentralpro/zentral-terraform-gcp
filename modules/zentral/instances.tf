@@ -125,7 +125,7 @@ resource "google_compute_instance" "ek1" {
 
   boot_disk {
     initialize_params {
-      image = "${var.images_project}/ztl-ek"
+      image = "projects/${var.images_project}/global/images/family/ztl-ek"
       size  = 30
       type  = "pd-ssd"
     }
