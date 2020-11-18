@@ -1,0 +1,42 @@
+{
+  "django": {
+    "DEBUG": false,
+    "MEDIA_ROOT": "/var/lib/zentral/media/",
+    "STATIC_ROOT": "/var/lib/zentral/static/"
+  },
+  "stores": {
+    "elasticsearch": {
+      "backend": "zentral.core.stores.backends.elasticsearch",
+      "index": "zentral-events",
+      "frontend": true,
+      "kibana_index_pattern_uuid": "zentral-events-index-pattern"
+    }
+  },
+  "actions": {},
+  "apps": {
+    "zentral.contrib.inventory": {
+      "clients": [],
+      "exporters": [
+        {
+          "backend": "zentral.contrib.inventory.exporters.es_machine_snapshots",
+          "bundle_ids": [
+            "com.apple.Safari",
+            "com.google.Chrome",
+            "org.mozilla.firefox"
+          ]
+        },
+        {
+          "backend": "zentral.contrib.inventory.exporters.es_aggregations",
+          "bundle_ids": [
+            "com.apple.Safari",
+            "com.google.Chrome",
+            "org.mozilla.firefox"
+          ]
+        }
+      ]
+    },
+    "zentral.contrib.jamf": {},
+    "zentral.contrib.osquery": {},
+    "zentral.contrib.santa": {}
+  }
+}
