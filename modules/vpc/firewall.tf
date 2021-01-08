@@ -52,7 +52,7 @@ resource "google_compute_firewall" "allow-network-lb-health-checks" {
 # allow connections from the web instances to the elastic instances
 resource "google_compute_firewall" "allow-elastic" {
   name        = "allow-elastic"
-  description = "Allow 9200 from 'web' to 'elastic' tagged instances"
+  description = "Allow 9200 to 'elastic' tagged instances"
   network     = google_compute_network.zentral.name
 
   allow {
@@ -60,7 +60,7 @@ resource "google_compute_firewall" "allow-elastic" {
     ports    = ["9200"]
   }
 
-  source_tags = ["web", "worker"]
+  source_tags = ["monitoring", "web", "worker"]
   target_tags = ["elastic"]
 }
 
@@ -77,4 +77,35 @@ resource "google_compute_firewall" "allow-kibana" {
 
   source_tags = ["web"]
   target_tags = ["elastic"]
+}
+
+# allow prometheus scraping
+resource "google_compute_firewall" "allow-prometheus-scraping" {
+  name        = "allow-prometheus-scraping"
+  description = "Allow 9900-9950 from 'monitoring' to targets"
+  network     = google_compute_network.zentral.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["9900-9950"]
+  }
+
+  source_tags = ["monitoring"]
+  target_tags = ["web", "worker"]
+}
+
+# allow proxying for monitoring
+resource "google_compute_firewall" "allow-monitoring-proxying" {
+  name        = "allow-monitoring-proxying"
+  description = "Allow 8000-80001 from 'web' to 'monitoring'"
+
+  network = google_compute_network.zentral.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["8000-8001"]
+  }
+
+  source_tags = ["web"]
+  target_tags = ["monitoring"]
 }

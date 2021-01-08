@@ -15,6 +15,17 @@ resource "google_service_account_key" "ek" {
 }
 
 #
+# SA for monitoring instance
+#
+
+# service account for the ek instances
+resource "google_service_account" "monitoring" {
+  account_id   = "ztl-monitoring-service-account"
+  display_name = "Zentral monitoring service account"
+  description  = "Service account for the zentral monitoring instance"
+}
+
+#
 # SA for web instances with PK
 #
 
@@ -47,7 +58,7 @@ resource "google_service_account_key" "worker" {
 }
 
 #
-# Role for service discovery with bindings to ek, web, work SAs
+# Role for service discovery with bindings to ek, monitoring, web, work SAs
 #
 
 # role with limited permissions for service discovery in the project
@@ -56,6 +67,7 @@ resource "google_project_iam_custom_role" "service-discovery" {
   title   = "Zentral service discovery role"
   permissions = [
     "compute.instances.list",
+    "compute.zones.list",
     "storage.buckets.list",
     "cloudsql.instances.list",
     "redis.instances.list"
@@ -68,6 +80,23 @@ resource "google_project_iam_binding" "project" {
 
   members = [
     "serviceAccount:${google_service_account.ek.email}",
+    "serviceAccount:${google_service_account.monitoring.email}",
+    "serviceAccount:${google_service_account.web.email}",
+    "serviceAccount:${google_service_account.worker.email}"
+  ]
+}
+
+# find the logging.logWriter role
+data "google_iam_role" "log-writer" {
+  name = "roles/logging.logWriter"
+}
+
+# assign logging.logWriter role to the service accounts who need it
+resource "google_project_iam_binding" "logging" {
+  count = var.datadog_api_key == "UNDEFINED" ? 1 : 0
+  role  = data.google_iam_role.log-writer.id
+
+  members = [
     "serviceAccount:${google_service_account.web.email}",
     "serviceAccount:${google_service_account.worker.email}"
   ]

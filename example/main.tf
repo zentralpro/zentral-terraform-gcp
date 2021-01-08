@@ -21,6 +21,10 @@ module "vpc" {
 module "zentral" {
   source = "git@github.com:zentralpro/zentral-terraform-gcp.git//modules/zentral?ref=v0.1.0"
 
+  depends_on = [
+    google_project_service.service
+  ]
+
   network_id      = module.vpc.network_id
   subnetwork_name = module.vpc.subnetwork_name
 
@@ -79,6 +83,9 @@ module "zentral" {
 
   # DB: 1 ⨉ vCPU, 3.75GB (to unlock the 100 connections)
   # db_tier = db-custom-1-3840
+
+  # Monitoring (Grafana + Prometheus): 1 ⨉ vCPU, 1GB
+  # monitoring_machine_type = "custom-1-1024"
 
 
   ####################

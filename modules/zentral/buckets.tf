@@ -74,6 +74,13 @@ resource "google_storage_bucket_iam_member" "dist-bucket-ek-service-account" {
   member = "serviceAccount:${google_service_account.ek.email}"
 }
 
+# allow the monitoring service account R access to the dist bucket
+resource "google_storage_bucket_iam_member" "dist-bucket-monitoring-service-account" {
+  bucket = google_storage_bucket.dist.name
+  role   = "roles/storage.objectViewer"
+  member = "serviceAccount:${google_service_account.monitoring.email}"
+}
+
 # allow the web service account R access to the dist bucket
 resource "google_storage_bucket_iam_member" "dist-bucket-web-service-account-access" {
   bucket = google_storage_bucket.dist.name

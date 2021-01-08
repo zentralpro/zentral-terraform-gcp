@@ -15,6 +15,9 @@ resource "google_compute_instance_template" "web" {
 
   machine_type = var.web_machine_type
   tags         = ["web", "ssh"]
+  labels = {
+    ztl-sa-short-name = "web"
+  }
 
   disk {
     source_image = data.google_compute_image.web.self_link
@@ -73,6 +76,9 @@ resource "google_compute_instance_template" "worker" {
 
   machine_type = var.worker_machine_type
   tags         = ["worker", "ssh"]
+  labels = {
+    ztl-sa-short-name = "worker"
+  }
 
   disk {
     source_image = data.google_compute_image.worker.self_link
@@ -122,6 +128,9 @@ resource "google_compute_instance" "ek1" {
   name         = "ztl-ek-1"
   machine_type = var.ek_machine_type
   tags         = ["elastic", "kibana", "ssh"]
+  labels = {
+    ztl-sa-short-name = "ek"
+  }
 
   boot_disk {
     initialize_params {
@@ -137,6 +146,70 @@ resource "google_compute_instance" "ek1" {
 
   service_account {
     email  = google_service_account.ek.email
+    scopes = ["cloud-platform"]
+  }
+
+  metadata_startup_script = <<EOT
+#!/bin/bash
+ztl_admin --no-ts setup
+EOT
+
+}
+
+#
+# monitoring instance
+#
+
+# monitoring instance prometheus data disk {
+resource "google_compute_disk" "prometheus" {
+  count = local.monitoring_instance_count
+  name  = "ztl-monitoring-prometheus-data"
+  size  = 20
+  type  = "pd-ssd"
+}
+
+# monitoring instance grafana data disk {
+resource "google_compute_disk" "grafana" {
+  count = local.monitoring_instance_count
+  name  = "ztl-monitoring-grafana-data"
+  size  = 1
+  type  = "pd-ssd"
+}
+
+# monitoring instance
+resource "google_compute_instance" "monitoring" {
+  count        = local.monitoring_instance_count
+  name         = "ztl-monitoring"
+  machine_type = var.monitoring_machine_type
+  tags         = ["monitoring", "ssh"]
+  labels = {
+    ztl-sa-short-name = "monitoring"
+  }
+
+  boot_disk {
+    initialize_params {
+      image = "projects/${var.images_project}/global/images/family/ztl-monitoring"
+      size  = 10
+      type  = "pd-ssd"
+    }
+  }
+
+  attached_disk {
+    source      = google_compute_disk.prometheus[0].self_link
+    device_name = "prometheus"
+  }
+
+  attached_disk {
+    source      = google_compute_disk.grafana[0].self_link
+    device_name = "grafana"
+  }
+
+  network_interface {
+    subnetwork = var.subnetwork_name
+  }
+
+  service_account {
+    email  = google_service_account.monitoring.email
     scopes = ["cloud-platform"]
   }
 

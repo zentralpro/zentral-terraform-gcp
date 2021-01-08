@@ -250,7 +250,7 @@ resource "google_secret_manager_secret_version" "ek_private_key" {
 }
 
 #
-# geolite2_license_key: api key for the datadog agent
+# geolite2_license_key: api key for the geolite2 DB updates
 #
 
 # geolite2_license_key secret
@@ -310,6 +310,13 @@ resource "google_secret_manager_secret_iam_member" "datadog_api_key_ek" {
   member    = "serviceAccount:${google_service_account.ek.email}"
 }
 
+# datadog_api_key read access for monitoring service accounts
+resource "google_secret_manager_secret_iam_member" "datadog_api_key_monitoring" {
+  secret_id = google_secret_manager_secret.datadog_api_key.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.monitoring.email}"
+}
+
 # datadog_api_key read access for web service accounts
 resource "google_secret_manager_secret_iam_member" "datadog_api_key_web" {
   secret_id = google_secret_manager_secret.datadog_api_key.secret_id
@@ -354,6 +361,13 @@ resource "google_secret_manager_secret_iam_member" "smtp_relay_password_ek" {
   member    = "serviceAccount:${google_service_account.ek.email}"
 }
 
+# smtp_relay_password read access for monitoring service accounts
+resource "google_secret_manager_secret_iam_member" "smtp_relay_password_monitoring" {
+  secret_id = google_secret_manager_secret.smtp_relay_password.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.monitoring.email}"
+}
+
 # smtp_relay_password read access for web service accounts
 resource "google_secret_manager_secret_iam_member" "smtp_relay_password_web" {
   secret_id = google_secret_manager_secret.smtp_relay_password.secret_id
@@ -396,6 +410,13 @@ resource "google_secret_manager_secret_iam_member" "crowdstrike_cid_ek" {
   secret_id = google_secret_manager_secret.crowdstrike_cid.secret_id
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:${google_service_account.ek.email}"
+}
+
+# crowdstrike_cid read access for monitoring service accounts
+resource "google_secret_manager_secret_iam_member" "crowdstrike_cid_monitoring" {
+  secret_id = google_secret_manager_secret.crowdstrike_cid.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.monitoring.email}"
 }
 
 # crowdstrike_cid read access for web service accounts
