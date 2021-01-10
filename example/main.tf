@@ -21,10 +21,6 @@ module "vpc" {
 module "zentral" {
   source = "git@github.com:zentralpro/zentral-terraform-gcp.git//modules/zentral?ref=v0.1.0"
 
-  depends_on = [
-    module.vpc, # for the google_service_networking_connection, no implicit dependency
-  ]
-
   network_id      = module.vpc.network_id
   subnetwork_name = module.vpc.subnetwork_name
 

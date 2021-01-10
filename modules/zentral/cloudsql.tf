@@ -20,6 +20,10 @@ resource "google_sql_database_instance" "zentral" {
   }
 
   deletion_protection = var.destroy_all_resources != true
+
+  depends_on = [
+    google_service_networking_connection.private_connection
+  ]
 }
 
 resource "google_sql_database" "zentral" {

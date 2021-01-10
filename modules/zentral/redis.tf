@@ -9,4 +9,8 @@ resource "google_redis_instance" "cache" {
 
   connect_mode       = "PRIVATE_SERVICE_ACCESS"
   authorized_network = var.network_id
+
+  depends_on = [
+    google_service_networking_connection.private_connection
+  ]
 }
