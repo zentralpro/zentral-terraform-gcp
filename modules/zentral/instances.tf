@@ -178,6 +178,12 @@ EOT
 # monitoring instance
 #
 
+# latest monitoring image when terraform runs
+data "google_compute_image" "monitoring" {
+  family  = "ztl-monitoring"
+  project = var.images_project
+}
+
 # monitoring instance prometheus data disk {
 resource "google_compute_disk" "prometheus" {
   count = local.monitoring_instance_count
@@ -194,6 +200,15 @@ resource "google_compute_disk" "grafana" {
   type  = "pd-ssd"
 }
 
+# monitoring instance reserved internal address
+resource "google_compute_address" "monitoring" {
+  count        = local.monitoring_instance_count
+  name         = "ztl-monitoring"
+  subnetwork   = var.subnetwork_name
+  address_type = "INTERNAL"
+  purpose      = "GCE_ENDPOINT"
+}
+
 # monitoring instance
 resource "google_compute_instance" "monitoring" {
   count        = local.monitoring_instance_count
@@ -206,7 +221,7 @@ resource "google_compute_instance" "monitoring" {
 
   boot_disk {
     initialize_params {
-      image = "projects/${var.images_project}/global/images/family/ztl-monitoring"
+      image = data.google_compute_image.monitoring.self_link
       size  = 10
       type  = "pd-ssd"
     }
@@ -224,6 +239,7 @@ resource "google_compute_instance" "monitoring" {
 
   network_interface {
     subnetwork = var.subnetwork_name
+    network_ip = google_compute_address.monitoring[0].address
   }
 
   service_account {
