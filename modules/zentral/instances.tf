@@ -48,15 +48,23 @@ EOT
 resource "google_compute_region_instance_group_manager" "web" {
   name = "ztl-web-mig"
 
-  version {
-    instance_template = google_compute_instance_template.web.id
-  }
-
   base_instance_name = "ztl-web"
   region             = data.google_client_config.current.region
 
   target_pools = [google_compute_target_pool.web.id]
   target_size  = var.web_mig_target_size
+
+  version {
+    instance_template = google_compute_instance_template.web.id
+  }
+
+  update_policy {
+    type                         = "PROACTIVE"
+    instance_redistribution_type = "PROACTIVE"
+    minimal_action               = "REPLACE"
+    max_unavailable_fixed        = 0
+    min_ready_sec                = 120
+  }
 }
 
 #
@@ -109,14 +117,22 @@ EOT
 resource "google_compute_region_instance_group_manager" "worker" {
   name = "ztl-worker-mig"
 
-  version {
-    instance_template = google_compute_instance_template.worker.id
-  }
-
   base_instance_name = "ztl-worker"
   region             = data.google_client_config.current.region
 
   target_size = var.worker_mig_target_size
+
+  version {
+    instance_template = google_compute_instance_template.worker.id
+  }
+
+  update_policy {
+    type                         = "PROACTIVE"
+    instance_redistribution_type = "PROACTIVE"
+    minimal_action               = "REPLACE"
+    max_unavailable_fixed        = 0
+    min_ready_sec                = 120
+  }
 }
 
 #
