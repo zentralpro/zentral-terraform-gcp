@@ -1,3 +1,15 @@
+# terraform gcs backend
+terraform {
+  backend "gcs" {
+    # replace with name of the bucket for the terraform backend
+    bucket = "NAME_OF_THE_BUCKET"
+    # a prefix can be used if the bucket is shared among many terraform deployments
+    # prefix = ""
+  }
+}
+
+
+# terraform google provider
 provider "google" {
   # the google cloud project
   project = "my-project-id"
@@ -7,8 +19,27 @@ provider "google" {
   zone = "us-east1-c"
 }
 
+
+# automatically enable the required APIs on the project
+resource "google_project_service" "service" {
+  for_each = toset([
+    "compute.googleapis.com",
+    "iam.googleapis.com",
+    "cloudresourcemanager.googleapis.com",
+    "servicenetworking.googleapis.com",
+    "secretmanager.googleapis.com",
+    "sqladmin.googleapis.com",
+    "pubsub.googleapis.com",
+    "redis.googleapis.com",
+  ])
+
+  service            = each.key
+  disable_on_destroy = false
+}
+
+# the zentral VPC
 module "vpc" {
-  source = "git@github.com:zentralpro/zentral-terraform-gcp.git//modules/vpc?ref=v0.1.0"
+  source = "git@github.com:zentralpro/zentral-terraform-gcp.git//modules/vpc?ref=v0.2.2"
 
   depends_on = [
     google_project_service.service
@@ -18,8 +49,9 @@ module "vpc" {
   # subnet = "10.0.1.0/24"
 }
 
+# the main zentral module
 module "zentral" {
-  source = "git@github.com:zentralpro/zentral-terraform-gcp.git//modules/zentral?ref=v0.1.0"
+  source = "git@github.com:zentralpro/zentral-terraform-gcp.git//modules/zentral?ref=v0.2.2"
 
   depends_on = [
     google_project_service.service
@@ -35,6 +67,11 @@ module "zentral" {
 
   fqdn = "zentral.example.com"
   # fqdn_mtls = "UNDEFINED"
+
+  # to load the certificate, issuer chain, and private key from the cfg/ local subdir, if present
+  tls_cert    = fileexists("${path.module}/cfg/cert.pem") ? file("${path.module}/cfg/cert.pem") : "UNDEFINED"
+  tls_chain   = fileexists("${path.module}/cfg/chain.pem") ? file("${path.module}/cfg/chain.pem") : "UNDEFINED"
+  tls_privkey = fileexists("${path.module}/cfg/privkey.pem") ? file("${path.module}/cfg/privkey.pem") : "UNDEFINED"
 
   # to load the cachain.pem file from the cfg/ subdir, if present
   # NOTE: both fqdn_mtls and cachain.pem need to be set to enable the mTLS endpoint
@@ -68,15 +105,19 @@ module "zentral" {
   base_json = file("${path.module}/cfg/base.json")
 
 
-  #################
-  # machine types #
-  #################
+  #############################
+  # machine types and numbers #
+  #############################
 
   # Web: 1 ⨉ vCPU, 1GB
   # web_machine_type = "custom-1-1024"
+  # Target size of the managed instance group
+  # web_mig_target_size = 2
 
   # Worker: 1 ⨉ vCPU, 1GB
   # worker_machine_type = "custom-1-1024"
+  # Target size of the managed instance group
+  # worker_mig_target_size = 1
 
   # Elasticsearch + Kibana: 1 ⨉ vCPU, 5GB
   # ek_machine_type = "custom-1-5120"
@@ -112,6 +153,7 @@ module "zentral" {
   # geolite2_license_key is a secret, so it is defined in variables.tf,
   # and can be passed in the environment. Do not set it here.
   # default = "UNDEFINED" → Geolite2 will not be configured.
+  # For more information, see https://dev.maxmind.com/geoip/geoip2/geolite2/
   # geolite2_license_key = var.geolite2_license_key
 
 
