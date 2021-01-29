@@ -8,7 +8,12 @@ variable "fqdns" {
   type        = list(string)
 }
 
-variable "project_id" {
+variable "gcp_project_id" {
   description = "The GCP project ID for the DNS challenge"
-  type        = string
+  default     = "UNDEFINED"
+}
+
+variable "cloudflare_api_token" {
+  description = "Cloudflare API token with DNS:Edit permission"
+  default     = "UNDEFINED"
 }
