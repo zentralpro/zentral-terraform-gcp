@@ -139,6 +139,18 @@ variable "crowdstrike_deb" {
   default     = "UNDEFINED"
 }
 
+# Certbot cloud function
+
+variable "cloudflare_api_token" {
+  description = "Cloudflare API token"
+  default     = "UNDEFINED"
+}
+
+variable "certbot_cloud_function" {
+  description = "Enable certbot cloud function"
+  default     = false
+}
+
 # DANGER - ONLY FOR TESTS!!!
 variable "destroy_all_resources" {
   description = "Set to true during testing to remove the db deletion protection and allow non-empty bucket deletion"
