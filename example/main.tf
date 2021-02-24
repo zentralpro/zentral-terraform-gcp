@@ -32,6 +32,7 @@ resource "google_project_service" "service" {
     "pubsub.googleapis.com",
     "redis.googleapis.com",
     # for the cloud function
+    # "appengine.googleapis.com",
     # "cloudbuild.googleapis.com",
     # "cloudfunctions.googleapis.com",
     # "cloudscheduler.googleapis.com",
