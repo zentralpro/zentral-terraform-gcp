@@ -180,7 +180,7 @@ module "zentral" {
   # Certbot cloud function #
   ##########################
 
-  # certbot_cloud_function = true
+  # certbot_cloud_function = false
 
   # cloudflare_api_token is a secret, so it is defined in variables.tf,
   # and can be passed in the environment. Do not set it here.
