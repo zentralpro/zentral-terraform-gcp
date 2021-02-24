@@ -90,6 +90,12 @@ resource "google_app_engine_application" "certbot" {
   count       = var.certbot_cloud_function ? 1 : 0
   project     = data.google_client_config.current.project
   location_id = data.google_client_config.current.region == "us-central1" ? "us-central" : data.google_client_config.current.region
+
+  lifecycle {
+    ignore_changes = [
+      location_id
+    ]
+  }
 }
 
 # scheduler
