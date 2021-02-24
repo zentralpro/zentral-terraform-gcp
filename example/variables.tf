@@ -13,3 +13,7 @@ variable "geolite2_license_key" {
 variable "crowdstrike_cid" {
   default = "UNDEFINED"
 }
+
+#variable "cloudflare_api_token" {
+#  type = string
+#}

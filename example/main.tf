@@ -31,6 +31,10 @@ resource "google_project_service" "service" {
     "sqladmin.googleapis.com",
     "pubsub.googleapis.com",
     "redis.googleapis.com",
+    # for the cloud function
+    # "cloudbuild.googleapis.com",
+    # "cloudfunctions.googleapis.com",
+    # "cloudscheduler.googleapis.com",
   ])
 
   service            = each.key
@@ -171,6 +175,15 @@ module "zentral" {
   # configured.
   # crowdstrike_cid = var.crowdstrike_cid
 
+  ##########################
+  # Certbot cloud function #
+  ##########################
+
+  # certbot_cloud_function = true
+
+  # cloudflare_api_token is a secret, so it is defined in variables.tf,
+  # and can be passed in the environment. Do not set it here.
+  # cloudflare_api_token   = var.cloudflare_api_token
 
   #################
   # Obscure stuff #
