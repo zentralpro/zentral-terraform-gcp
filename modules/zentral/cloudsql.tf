@@ -32,7 +32,8 @@ resource "google_sql_database" "zentral" {
 }
 
 resource "google_sql_user" "zentral" {
-  name     = "zentral"
-  instance = google_sql_database_instance.zentral.name
-  password = random_password.db.result
+  name            = "zentral"
+  instance        = google_sql_database_instance.zentral.name
+  password        = random_password.db.result
+  deletion_policy = var.destroy_all_resources ? "ABANDON" : null
 }
