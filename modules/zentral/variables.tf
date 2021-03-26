@@ -89,8 +89,16 @@ variable "images_project" {
   default     = "sublime-delight-encoder"
 }
 
+variable "web_image" {
+  default = "LATEST"
+}
+
 variable "web_machine_type" {
   default = "custom-1-1024"
+}
+
+variable "worker_image" {
+  default = "LATEST"
 }
 
 variable "worker_machine_type" {

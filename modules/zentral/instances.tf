@@ -3,8 +3,15 @@
 #
 
 # latest web image when terraform runs
-data "google_compute_image" "web" {
+data "google_compute_image" "web_latest" {
   family  = "ztl-web"
+  project = var.images_project
+}
+
+# provided web image
+data "google_compute_image" "web" {
+  count   = var.web_image == "LATEST" ? 0 : 1
+  name    = var.web_image
   project = var.images_project
 }
 
@@ -20,7 +27,7 @@ resource "google_compute_instance_template" "web" {
   }
 
   disk {
-    source_image = data.google_compute_image.web.self_link
+    source_image = var.web_image == "LATEST" ? data.google_compute_image.web_latest.self_link : data.google_compute_image.web[0].self_link
     disk_type    = "pd-ssd"
   }
 
@@ -73,8 +80,15 @@ resource "google_compute_region_instance_group_manager" "web" {
 #
 
 # latest worker image when terraform runs
-data "google_compute_image" "worker" {
+data "google_compute_image" "worker_latest" {
   family  = "ztl-worker"
+  project = var.images_project
+}
+
+# provided worker image
+data "google_compute_image" "worker" {
+  count   = var.worker_image == "LATEST" ? 0 : 1
+  name    = var.worker_image
   project = var.images_project
 }
 
@@ -90,7 +104,7 @@ resource "google_compute_instance_template" "worker" {
   }
 
   disk {
-    source_image = data.google_compute_image.worker.self_link
+    source_image = var.worker_image == "LATEST" ? data.google_compute_image.worker_latest.self_link : data.google_compute_image.worker[0].self_link
     disk_type    = "pd-ssd"
   }
 
