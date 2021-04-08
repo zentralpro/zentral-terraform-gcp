@@ -52,6 +52,11 @@ module "vpc" {
 
   # The CIDR block for the subnet
   # subnet = "10.0.1.0/24"
+
+  # To "manually" set the IP addresses used by the NAT router
+  # 0 → the NAT router will be set to automatically allocate IP addresses
+  # see https://cloud.google.com/nat/docs/ports-and-addresses#addresses
+  # manual_nat_ip_address_count = 0
 }
 
 # the main zentral module

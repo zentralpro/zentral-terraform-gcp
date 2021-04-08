@@ -28,11 +28,25 @@ resource "google_compute_router" "nat-router" {
   network = google_compute_network.zentral.name
 }
 
+# IP addresses for the nat router
+resource "google_compute_address" "manual_nat" {
+  count  = var.manual_nat_ip_address_count
+  name   = "ztl-manual-nat-ip-${count.index}"
+  region = data.google_client_config.current.region
+}
+
 # configure nat with router
 resource "google_compute_router_nat" "nat-config" {
-  name                               = "ztl-nat-config"
-  router                             = google_compute_router.nat-router.name
-  region                             = data.google_client_config.current.region
-  nat_ip_allocate_option             = "AUTO_ONLY"
-  source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
+  name   = "ztl-nat-config"
+  router = google_compute_router.nat-router.name
+  region = data.google_client_config.current.region
+
+  nat_ip_allocate_option = var.manual_nat_ip_address_count > 0 ? "MANUAL_ONLY" : "AUTO_ONLY"
+  nat_ips                = var.manual_nat_ip_address_count > 0 ? google_compute_address.manual_nat.*.self_link : null
+
+  source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
+  subnetwork {
+    name                    = google_compute_subnetwork.subnetwork.id
+    source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
+  }
 }
