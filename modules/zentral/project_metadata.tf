@@ -57,6 +57,14 @@ resource "google_compute_project_metadata_item" "distribute_tls_server_certs" {
   value = var.distribute_tls_server_certs
 }
 
+resource "google_compute_project_metadata_item" "nginx_http_realip" {
+  key = "zentral_nginx_http_realip"
+  value = jsonencode({
+    set_real_ip_from = var.set_real_ip_from,
+    real_ip_header   = var.real_ip_header == "UNDEFINED" ? null : var.real_ip_header
+  })
+}
+
 resource "google_compute_project_metadata_item" "geolite2_account_id" {
   key   = "zentral_geolite2_account_id"
   value = var.geolite2_account_id

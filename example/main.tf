@@ -44,7 +44,7 @@ resource "google_project_service" "service" {
 
 # the zentral VPC
 module "vpc" {
-  source = "git@github.com:zentralpro/zentral-terraform-gcp.git//modules/vpc?ref=v0.2.7"
+  source = "git@github.com:zentralpro/zentral-terraform-gcp.git//modules/vpc?ref=v0.2.8"
 
   depends_on = [
     google_project_service.service
@@ -61,7 +61,7 @@ module "vpc" {
 
 # the main zentral module
 module "zentral" {
-  source = "git@github.com:zentralpro/zentral-terraform-gcp.git//modules/zentral?ref=v0.2.7"
+  source = "git@github.com:zentralpro/zentral-terraform-gcp.git//modules/zentral?ref=v0.2.8"
 
   depends_on = [
     google_project_service.service
@@ -71,9 +71,9 @@ module "zentral" {
   subnetwork_name = module.vpc.subnetwork_name
 
 
-  #####################
-  # FQDN / mTLS / DNS #
-  #####################
+  ##########################
+  # FQDN / mTLS / DNS / IP #
+  ##########################
 
   fqdn = "zentral.example.com"
   # fqdn_mtls = "UNDEFINED"
@@ -86,6 +86,31 @@ module "zentral" {
   # to load the cachain.pem file from the cfg/ subdir, if present
   # NOTE: both fqdn_mtls and cachain.pem need to be set to enable the mTLS endpoint
   tls_cachain = fileexists("${path.module}/cfg/cachain.pem") ? file("${path.module}/cfg/cachain.pem") : "UNDEFINED"
+
+  # Optional, configure the Nginx http realip module, if a proxy is used in front of the load balancer.
+  # List of trusted addresses that are known to send correct replacement addresses
+  # set_real_ip_from = []
+  # Request header field whose value will be used to replace the client address.
+  # real_ip_header = null
+  #
+  # for example, for clouflare:
+  # set_real_ip_from = [
+  #  "173.245.48.0/20",
+  #  "103.21.244.0/22",
+  #  "103.22.200.0/22",
+  #  "103.31.4.0/22",
+  #  "141.101.64.0/18",
+  #  "108.162.192.0/18",
+  #  "190.93.240.0/20",
+  #  "188.114.96.0/20",
+  #  "197.234.240.0/22",
+  #  "198.41.128.0/17",
+  #  "162.158.0.0/15",
+  #  "104.16.0.0/12",
+  #  "172.64.0.0/13",
+  #  "131.0.72.0/22",
+  #]
+  # real_ip_header = "CF-Connecting-IP"
 
 
   ############################

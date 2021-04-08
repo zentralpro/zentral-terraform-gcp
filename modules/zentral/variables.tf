@@ -56,6 +56,19 @@ variable "distribute_tls_server_certs" {
   default = "0"
 }
 
+# http://nginx.org/en/docs/http/ngx_http_realip_module.html
+variable "set_real_ip_from" {
+  description = "Nginx realip module. List of trusted addresses that are known to send correct replacement addresses."
+  type        = list(string)
+  default     = []
+}
+
+# http://nginx.org/en/docs/http/ngx_http_realip_module.html
+variable "real_ip_header" {
+  description = "Nginx realip module. Request header field whose value will be used to replace the client address."
+  default     = "UNDEFINED"
+}
+
 variable "geolite2_account_id" {
   default = "UNDEFINED"
 }
