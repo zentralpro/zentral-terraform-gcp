@@ -338,6 +338,43 @@ resource "google_secret_manager_secret_version" "datadog_api_key" {
 }
 
 #
+# splunk_hec_token: Token for Splunk HEC
+#
+
+# splunk_hec_token secret
+resource "google_secret_manager_secret" "splunk_hec_token" {
+  secret_id = "ztl-splunk-hec-token"
+
+  replication {
+    user_managed {
+      replicas {
+        location = data.google_client_config.current.region
+      }
+    }
+  }
+}
+
+# splunk_hec_token read access for web service accounts
+resource "google_secret_manager_secret_iam_member" "splunk_hec_token_web" {
+  secret_id = google_secret_manager_secret.splunk_hec_token.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.web.email}"
+}
+
+# splunk_hec_token read access for worker service accounts
+resource "google_secret_manager_secret_iam_member" "splunk_hec_token_worker" {
+  secret_id = google_secret_manager_secret.splunk_hec_token.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.worker.email}"
+}
+
+# splunk_hec_token value
+resource "google_secret_manager_secret_version" "splunk_hec_token" {
+  secret      = google_secret_manager_secret.splunk_hec_token.id
+  secret_data = var.splunk_hec_token
+}
+
+#
 # smtp_relay_password
 #
 

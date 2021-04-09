@@ -95,6 +95,13 @@ variable "datadog_api_key" {
   default = "UNDEFINED"
 }
 
+# splunk
+
+variable "splunk_hec_token" {
+  default = "UNDEFINED"
+}
+
+
 # instances
 
 variable "images_project" {

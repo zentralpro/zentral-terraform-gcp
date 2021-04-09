@@ -179,6 +179,17 @@ module "zentral" {
   # datadog_api_key = var.datadog_api_key
 
 
+  ##########
+  # Splunk #
+  ##########
+
+  # splunk_hec_token is a secret, so it is defined in variables.tf,
+  # and can be passed in the environment. Do not set it here.
+  # default = "UNDEFINED" → it will not be added to an eventual
+  # splunk store in base.json.
+  # splunk_hec_token = var.splunk_hec_token
+
+
   ########################
   # Geolite2 credentials #
   ########################

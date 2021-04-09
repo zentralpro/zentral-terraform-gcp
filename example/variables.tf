@@ -8,6 +8,11 @@ variable "datadog_api_key" {
   sensitive = true
 }
 
+variable "splunk_hec_token" {
+  default   = "UNDEFINED"
+  sensitive = true
+}
+
 variable "geolite2_license_key" {
   default   = "UNDEFINED"
   sensitive = true
