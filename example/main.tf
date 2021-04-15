@@ -129,6 +129,9 @@ module "zentral" {
   # default = "UNDEFINED" → the SMTP relay will not be configured.
   # smtp_relay_password = var.smtp_relay_password
 
+  # If this list is empty, all domains are allowed
+  # smtp_allowed_recipient_domains = []
+
 
   #########################
   # Zentral configuration #

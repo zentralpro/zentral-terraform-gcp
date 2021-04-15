@@ -155,6 +155,11 @@ variable "smtp_relay_password" {
   default = "UNDEFINED"
 }
 
+variable "smtp_allowed_recipient_domains" {
+  default = []
+  type    = list(string)
+}
+
 # CrowdStrike
 
 variable "crowdstrike_cid" {

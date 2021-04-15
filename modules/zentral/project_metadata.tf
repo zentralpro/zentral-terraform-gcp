@@ -100,6 +100,11 @@ resource "google_compute_project_metadata_item" "smtp_relay_user" {
   value = var.smtp_relay_user
 }
 
+resource "google_compute_project_metadata_item" "smtp_allowed_recipient_domains" {
+  key   = "zentral_smtp_allowed_recipient_domains"
+  value = jsonencode(var.smtp_allowed_recipient_domains)
+}
+
 resource "google_compute_project_metadata_item" "crowdstrike_deb" {
   key   = "zentral_crowdstrike_deb"
   value = var.crowdstrike_deb
