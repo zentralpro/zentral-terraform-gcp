@@ -44,7 +44,7 @@ resource "google_project_service" "service" {
 
 # the zentral VPC
 module "vpc" {
-  source = "git@github.com:zentralpro/zentral-terraform-gcp.git//modules/vpc?ref=v0.2.9"
+  source = "git@github.com:zentralpro/zentral-terraform-gcp.git//modules/vpc?ref=v0.2.10"
 
   depends_on = [
     google_project_service.service
@@ -61,7 +61,7 @@ module "vpc" {
 
 # the main zentral module
 module "zentral" {
-  source = "git@github.com:zentralpro/zentral-terraform-gcp.git//modules/zentral?ref=v0.2.9"
+  source = "git@github.com:zentralpro/zentral-terraform-gcp.git//modules/zentral?ref=v0.2.10"
 
   depends_on = [
     google_project_service.service
