@@ -44,6 +44,9 @@ resource "google_compute_router_nat" "nat-config" {
   nat_ip_allocate_option = var.manual_nat_ip_address_count > 0 ? "MANUAL_ONLY" : "AUTO_ONLY"
   nat_ips                = var.manual_nat_ip_address_count > 0 ? google_compute_address.manual_nat.*.self_link : null
 
+  # https://cloud.google.com/nat/docs/overview#specs-rfcs
+  enable_endpoint_independent_mapping = false
+
   source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
   subnetwork {
     name                    = google_compute_subnetwork.subnetwork.id
