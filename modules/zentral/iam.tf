@@ -97,6 +97,26 @@ resource "google_project_iam_binding" "logging" {
   role  = data.google_iam_role.log-writer.id
 
   members = [
+    "serviceAccount:${google_service_account.ek.email}",
+    "serviceAccount:${google_service_account.monitoring.email}",
+    "serviceAccount:${google_service_account.web.email}",
+    "serviceAccount:${google_service_account.worker.email}"
+  ]
+}
+
+# find the monitoring.metricWriter role
+data "google_iam_role" "metric-writer" {
+  name = "roles/monitoring.metricWriter"
+}
+
+# assign monitoring.metricWriter role to the service accounts who need it
+resource "google_project_iam_binding" "monitoring" {
+  count = var.datadog_api_key == "UNDEFINED" ? 1 : 0
+  role  = data.google_iam_role.metric-writer.id
+
+  members = [
+    "serviceAccount:${google_service_account.ek.email}",
+    "serviceAccount:${google_service_account.monitoring.email}",
     "serviceAccount:${google_service_account.web.email}",
     "serviceAccount:${google_service_account.worker.email}"
   ]
