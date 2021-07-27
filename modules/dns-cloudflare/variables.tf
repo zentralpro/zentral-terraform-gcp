@@ -1,3 +1,8 @@
+variable "api_token" {
+  type      = string
+  sensitive = true
+}
+
 variable "fqdn" {
   type = string
 }
@@ -12,4 +17,8 @@ variable "lb_ip" {
 
 variable "ttl" {
   default = 300
+}
+
+variable "proxied" {
+  default = true
 }

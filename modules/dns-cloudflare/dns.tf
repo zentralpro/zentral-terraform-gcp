@@ -4,12 +4,17 @@ data "cloudflare_zones" "this" {
   }
 }
 
+provider "cloudflare" {
+  api_token = var.api_token
+}
+
 resource "cloudflare_record" "fqdn" {
   zone_id = lookup(data.cloudflare_zones.this.zones[0], "id")
   name    = element(split(".", var.fqdn), 0)
   type    = "A"
   value   = var.lb_ip
   ttl     = var.ttl
+  proxied = var.proxied
 }
 
 resource "cloudflare_record" "fqdn_mtls" {
@@ -19,5 +24,5 @@ resource "cloudflare_record" "fqdn_mtls" {
   type    = "A"
   value   = var.lb_ip
   ttl     = var.ttl
+  proxied = var.proxied
 }
-
