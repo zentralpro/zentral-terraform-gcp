@@ -13,7 +13,7 @@ resource "cloudflare_record" "fqdn" {
   name    = element(split(".", var.fqdn), 0)
   type    = "A"
   value   = var.lb_ip
-  ttl     = var.ttl
+  ttl     = var.proxied ? 1 : var.ttl
   proxied = var.proxied
 }
 
@@ -23,6 +23,6 @@ resource "cloudflare_record" "fqdn_mtls" {
   name    = element(split(".", var.fqdn_mtls), 0)
   type    = "A"
   value   = var.lb_ip
-  ttl     = var.ttl
+  ttl     = var.proxied ? 1 : var.ttl
   proxied = var.proxied
 }
