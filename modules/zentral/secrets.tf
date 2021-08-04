@@ -354,6 +354,14 @@ resource "google_secret_manager_secret" "splunk_hec_token" {
   }
 }
 
+# splunk_hec_token read access for monitoring service account
+# used by ztl_admin for example to see if a prometheus target for the worker needs to be added.
+resource "google_secret_manager_secret_iam_member" "splunk_hec_token_monitoring" {
+  secret_id = google_secret_manager_secret.splunk_hec_token.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.monitoring.email}"
+}
+
 # splunk_hec_token read access for web service accounts
 resource "google_secret_manager_secret_iam_member" "splunk_hec_token_web" {
   secret_id = google_secret_manager_secret.splunk_hec_token.secret_id
