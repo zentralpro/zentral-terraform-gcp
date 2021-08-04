@@ -170,6 +170,25 @@ module "zentral" {
   # monitoring_machine_type = "custom-1-1024"
 
 
+  #############
+  # DB Backup #
+  #############
+
+  # db_backup_enabled = false
+
+  # db_backup_start_time = "00:00"
+  # Beginning (24-hour time, UTC) of a 4-hour backup window
+
+  # db_backup_count = 7
+  # Number of daily backups retained. Min 7, max 366
+
+  # db_point_in_time_recovery_enabled = false
+  # To enable point-in-time recovery
+
+  # db_transaction_log_retention_days = 7
+  # Number of days of transaction logs retained. Min 1, max 7
+
+
   ####################
   # Datadog settings #
   ####################

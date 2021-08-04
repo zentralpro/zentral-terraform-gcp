@@ -17,6 +17,16 @@ resource "google_sql_database_instance" "zentral" {
       ipv4_enabled    = false
       private_network = var.network_id
     }
+    backup_configuration {
+      enabled    = var.db_backup_enabled
+      start_time = var.db_backup_start_time
+      backup_retention_settings {
+        retained_backups = var.db_backup_count
+        retention_unit   = "COUNT"
+      }
+      point_in_time_recovery_enabled = var.db_point_in_time_recovery_enabled
+      transaction_log_retention_days = var.db_transaction_log_retention_days
+    }
   }
 
   deletion_protection = var.destroy_all_resources != true

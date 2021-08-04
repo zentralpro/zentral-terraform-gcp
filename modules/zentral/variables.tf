@@ -137,6 +137,29 @@ variable "monitoring_machine_type" {
   default = "custom-1-1024"
 }
 
+# DB backup
+
+variable "db_backup_enabled" {
+  default = false
+}
+
+variable "db_backup_start_time" {
+  default     = "00:00"
+  description = "Beginning (24-hour time, UTC) of a 4-hour backup window"
+}
+
+variable "db_backup_count" {
+  default = 7
+}
+
+variable "db_point_in_time_recovery_enabled" {
+  default = false
+}
+
+variable "db_transaction_log_retention_days" {
+  default = 7
+}
+
 # smtp
 
 variable "default_from_email" {
