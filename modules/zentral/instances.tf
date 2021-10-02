@@ -42,6 +42,7 @@ resource "google_compute_instance_template" "web" {
 
   metadata_startup_script = <<EOT
 #!/bin/bash
+systemctl start google-guest-agent
 ztl_admin --no-ts setup
 EOT
 
@@ -119,6 +120,7 @@ resource "google_compute_instance_template" "worker" {
 
   metadata_startup_script = <<EOT
 #!/bin/bash
+systemctl start google-guest-agent
 ztl_admin --no-ts setup
 EOT
 
@@ -183,9 +185,15 @@ resource "google_compute_instance" "ek1" {
 
   metadata_startup_script = <<EOT
 #!/bin/bash
+systemctl start google-guest-agent
 ztl_admin --no-ts setup
 EOT
 
+  lifecycle {
+    ignore_changes = [
+      metadata_startup_script,
+    ]
+  }
 }
 
 #
@@ -263,7 +271,13 @@ resource "google_compute_instance" "monitoring" {
 
   metadata_startup_script = <<EOT
 #!/bin/bash
+systemctl start google-guest-agent
 ztl_admin --no-ts setup
 EOT
 
+  lifecycle {
+    ignore_changes = [
+      metadata_startup_script,
+    ]
+  }
 }
