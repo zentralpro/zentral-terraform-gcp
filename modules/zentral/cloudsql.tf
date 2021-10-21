@@ -12,7 +12,6 @@ resource "google_sql_database_instance" "zentral" {
 
   settings {
     tier      = var.db_tier
-    disk_size = 10
     ip_configuration {
       ipv4_enabled    = false
       private_network = var.network_id
