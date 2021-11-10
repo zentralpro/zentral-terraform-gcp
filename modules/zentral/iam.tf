@@ -121,3 +121,18 @@ resource "google_project_iam_binding" "monitoring" {
     "serviceAccount:${google_service_account.worker.email}"
   ]
 }
+
+# find the monitoring.viewer role
+data "google_iam_role" "monitoring-viewer" {
+  name = "roles/monitoring.viewer"
+}
+
+# assign monitoring.viewer role to the service accounts who need it
+resource "google_project_iam_binding" "monitoring-viewer" {
+  count = var.datadog_api_key == "UNDEFINED" ? 1 : 0
+  role  = data.google_iam_role.monitoring-viewer.id
+
+  members = [
+    "serviceAccount:${google_service_account.monitoring.email}",
+  ]
+}
