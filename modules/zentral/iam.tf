@@ -136,3 +136,18 @@ resource "google_project_iam_binding" "monitoring-viewer" {
     "serviceAccount:${google_service_account.monitoring.email}",
   ]
 }
+
+# find the cloudsql.client role
+data "google_iam_role" "cloudsql-client" {
+  name = "roles/cloudsql.client"
+}
+
+# assign cloudsql.client role to the service accounts who need it
+resource "google_project_iam_binding" "cloudsql-client" {
+  role = data.google_iam_role.cloudsql-client.id
+
+  members = [
+    "serviceAccount:${google_service_account.web.email}",
+    "serviceAccount:${google_service_account.worker.email}"
+  ]
+}

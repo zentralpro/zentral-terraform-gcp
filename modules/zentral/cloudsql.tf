@@ -11,10 +11,11 @@ resource "google_sql_database_instance" "zentral" {
   database_version = "POSTGRES_12"
 
   settings {
-    tier      = var.db_tier
+    tier = var.db_tier
     ip_configuration {
       ipv4_enabled    = false
       private_network = var.network_id
+      require_ssl     = true
     }
     backup_configuration {
       enabled    = var.db_backup_enabled
