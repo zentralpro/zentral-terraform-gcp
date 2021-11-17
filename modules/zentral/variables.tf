@@ -125,12 +125,20 @@ variable "worker_machine_type" {
   default = "custom-1-1024"
 }
 
+variable "ek_image" {
+  default = "LATEST"
+}
+
 variable "ek_machine_type" {
   default = "custom-1-5120"
 }
 
 variable "db_tier" {
   default = "db-custom-1-3840"
+}
+
+variable "monitoring_image" {
+  default = "LATEST"
 }
 
 variable "monitoring_machine_type" {

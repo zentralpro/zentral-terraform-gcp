@@ -154,20 +154,28 @@ module "zentral" {
   # web_machine_type = "custom-1-1024"
   # Target size of the managed instance group
   # web_mig_target_size = 2
+  # Image. Change this if you want to pin a version
+  # web_image = "LATEST"
 
   # Worker: 1 ⨉ vCPU, 1GB
   # worker_machine_type = "custom-1-1024"
   # Target size of the managed instance group
   # worker_mig_target_size = 1
+  # Image. Change this if you want to pin a version
+  # worker_image = "LATEST"
 
   # Elasticsearch + Kibana: 1 ⨉ vCPU, 5GB
   # ek_machine_type = "custom-1-5120"
+  # Image. Change this if you want to pin a version
+  # ek_image = "LATEST"
 
   # DB: 1 ⨉ vCPU, 3.75GB (to unlock the 100 connections)
   # db_tier = db-custom-1-3840
 
   # Monitoring (Grafana + Prometheus): 1 ⨉ vCPU, 1GB
   # monitoring_machine_type = "custom-1-1024"
+  # Image. Change this if you want to pin a version
+  # monitoring_image = "LATEST"
 
 
   #############

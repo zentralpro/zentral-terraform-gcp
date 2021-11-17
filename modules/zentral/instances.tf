@@ -157,6 +157,19 @@ resource "google_compute_region_instance_group_manager" "worker" {
 # ek instances
 #
 
+# latest ek image when terraform runs
+data "google_compute_image" "ek_latest" {
+  family  = "ztl-ek"
+  project = var.images_project
+}
+
+# provided ek image
+data "google_compute_image" "ek" {
+  count   = var.ek_image == "LATEST" ? 0 : 1
+  name    = var.ek_image
+  project = var.images_project
+}
+
 # elasticsearch kibana instance
 resource "google_compute_instance" "ek1" {
   name         = "ztl-ek-1"
@@ -168,7 +181,7 @@ resource "google_compute_instance" "ek1" {
 
   boot_disk {
     initialize_params {
-      image = "projects/${var.images_project}/global/images/family/ztl-ek"
+      image = var.ek_image == "LATEST" ? data.google_compute_image.ek_latest.self_link : data.google_compute_image.ek[0].self_link
       size  = 30
       type  = "pd-ssd"
     }
@@ -201,8 +214,15 @@ EOT
 #
 
 # latest monitoring image when terraform runs
-data "google_compute_image" "monitoring" {
+data "google_compute_image" "monitoring_latest" {
   family  = "ztl-monitoring"
+  project = var.images_project
+}
+
+# provided monitoring image
+data "google_compute_image" "monitoring" {
+  count   = var.monitoring_image == "LATEST" ? 0 : 1
+  name    = var.monitoring_image
   project = var.images_project
 }
 
@@ -243,7 +263,7 @@ resource "google_compute_instance" "monitoring" {
 
   boot_disk {
     initialize_params {
-      image = data.google_compute_image.monitoring.self_link
+      image = var.monitoring_image == "LATEST" ? data.google_compute_image.monitoring_latest.self_link : data.google_compute_image.monitoring[0].self_link
       size  = 10
       type  = "pd-ssd"
     }
