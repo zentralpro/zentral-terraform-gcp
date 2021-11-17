@@ -170,6 +170,21 @@ data "google_compute_image" "ek" {
   project = var.images_project
 }
 
+# ek instance elasticsearch data disk {
+resource "google_compute_disk" "elasticsearch" {
+  name = "ztl-ek-elasticsearch-data"
+  size = var.ek_data_disk_size
+  type = "pd-ssd"
+}
+
+# ek instance reserved internal address
+resource "google_compute_address" "ek" {
+  name         = "ztl-ek"
+  subnetwork   = var.subnetwork_name
+  address_type = "INTERNAL"
+  purpose      = "GCE_ENDPOINT"
+}
+
 # elasticsearch kibana instance
 resource "google_compute_instance" "ek1" {
   name         = "ztl-ek-1"
@@ -182,13 +197,19 @@ resource "google_compute_instance" "ek1" {
   boot_disk {
     initialize_params {
       image = var.ek_image == "LATEST" ? data.google_compute_image.ek_latest.self_link : data.google_compute_image.ek[0].self_link
-      size  = 30
+      size  = 10
       type  = "pd-ssd"
     }
   }
 
+  attached_disk {
+    source      = google_compute_disk.elasticsearch.self_link
+    device_name = "elasticsearch"
+  }
+
   network_interface {
     subnetwork = var.subnetwork_name
+    network_ip = google_compute_address.ek.address
   }
 
   service_account {
@@ -205,6 +226,7 @@ EOT
   lifecycle {
     ignore_changes = [
       metadata_startup_script,
+      boot_disk.0.initialize_params.0.size
     ]
   }
 }

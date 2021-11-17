@@ -133,6 +133,10 @@ variable "ek_machine_type" {
   default = "custom-1-5120"
 }
 
+variable "ek_data_disk_size" {
+  default = 30
+}
+
 variable "db_tier" {
   default = "db-custom-1-3840"
 }

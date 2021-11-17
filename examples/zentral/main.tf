@@ -168,6 +168,8 @@ module "zentral" {
   # ek_machine_type = "custom-1-5120"
   # Image. Change this if you want to pin a version
   # ek_image = "LATEST"
+  # Data disk size, in GB
+  # ek_data_disk_size = 30
 
   # DB: 1 ⨉ vCPU, 3.75GB (to unlock the 100 connections)
   # db_tier = db-custom-1-3840
