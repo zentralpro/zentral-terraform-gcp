@@ -157,6 +157,48 @@ resource "google_secret_manager_secret_version" "django_secret_key" {
 }
 
 #
+# metrics_bearer_token: bearer token used to authenticate the prometheus requests
+#
+
+# generate
+resource "random_password" "metrics_bearer_token" {
+  length = 37
+}
+
+# metrics_bearer_token secret
+resource "google_secret_manager_secret" "metrics_bearer_token" {
+  secret_id = "ztl-metrics-bearer-token"
+
+  replication {
+    user_managed {
+      replicas {
+        location = data.google_client_config.current.region
+      }
+    }
+  }
+}
+
+# metrics_bearer_token read access for web service account
+resource "google_secret_manager_secret_iam_member" "metrics_bearer_token_web" {
+  secret_id = google_secret_manager_secret.metrics_bearer_token.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.web.email}"
+}
+
+# metrics_bearer_token read access for monitoring service account
+resource "google_secret_manager_secret_iam_member" "metrics_bearer_token_monitoring" {
+  secret_id = google_secret_manager_secret.metrics_bearer_token.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.monitoring.email}"
+}
+
+# metrics_bearer_token value
+resource "google_secret_manager_secret_version" "metrics_bearer_token" {
+  secret      = google_secret_manager_secret.metrics_bearer_token.id
+  secret_data = random_password.metrics_bearer_token.result
+}
+
+#
 # web_private_key: private key for the web service account
 # needed to be able to sign GCS blob URLs
 #
