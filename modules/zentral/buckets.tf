@@ -34,7 +34,8 @@ resource "google_storage_bucket_iam_member" "zentral-bucket-worker-service-accou
 
 # bucket for the elasticsearch backups
 resource "google_storage_bucket" "elastic" {
-  name = "ztl-elastic-${data.google_client_config.current.project}"
+  count = var.ek_instance_count > 0 ? 1 : 0
+  name  = "ztl-elastic-${data.google_client_config.current.project}"
   labels = {
     usage = "elastic"
   }
@@ -46,9 +47,10 @@ resource "google_storage_bucket" "elastic" {
 
 # allow the ek service account RW access to the elactic bucket
 resource "google_storage_bucket_iam_member" "elastic-bucket-service-account" {
-  bucket = google_storage_bucket.elastic.name
+  count  = var.ek_instance_count > 0 ? 1 : 0
+  bucket = google_storage_bucket.elastic[0].name
   role   = "roles/storage.admin"
-  member = "serviceAccount:${google_service_account.ek.email}"
+  member = "serviceAccount:${google_service_account.ek[0].email}"
 }
 
 #
@@ -69,9 +71,11 @@ resource "google_storage_bucket" "dist" {
 
 # allow the ek service account R access to the dist bucket
 resource "google_storage_bucket_iam_member" "dist-bucket-ek-service-account" {
+  count  = var.ek_instance_count > 0 ? 1 : 0
+  name   = "ztl-elastic-${data.google_client_config.current.project}"
   bucket = google_storage_bucket.dist.name
   role   = "roles/storage.objectViewer"
-  member = "serviceAccount:${google_service_account.ek.email}"
+  member = "serviceAccount:${google_service_account.ek[0].email}"
 }
 
 # allow the monitoring service account R access to the dist bucket

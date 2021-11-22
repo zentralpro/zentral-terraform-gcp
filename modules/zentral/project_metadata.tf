@@ -70,6 +70,11 @@ resource "google_compute_project_metadata_item" "geolite2_account_id" {
   value = var.geolite2_account_id
 }
 
+resource "google_compute_project_metadata_item" "ek_instance_count" {
+  key   = "zentral_ek_instance_count"
+  value = var.ek_instance_count
+}
+
 resource "google_compute_project_metadata_item" "datadog_site" {
   key   = "zentral_datadog_site"
   value = var.datadog_site

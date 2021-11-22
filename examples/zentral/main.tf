@@ -164,7 +164,11 @@ module "zentral" {
   # Image. Change this if you want to pin a version
   # worker_image = "LATEST"
 
-  # Elasticsearch + Kibana: 1 ⨉ vCPU, 5GB
+  # Elasticsearch + Kibana
+  # set ek_instance_count to 0 to remove all the resources
+  # required to maintain the Elasticsearch event store.
+  # ek_instance_count = 1
+  # 1 ⨉ vCPU, 5GB
   # ek_machine_type = "custom-1-5120"
   # Image. Change this if you want to pin a version
   # ek_image = "LATEST"

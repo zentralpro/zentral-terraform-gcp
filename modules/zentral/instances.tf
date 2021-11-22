@@ -172,13 +172,15 @@ data "google_compute_image" "ek" {
 
 # ek instance elasticsearch data disk {
 resource "google_compute_disk" "elasticsearch" {
-  name = "ztl-ek-elasticsearch-data"
-  size = var.ek_data_disk_size
-  type = "pd-ssd"
+  count = var.ek_instance_count > 0 ? 1 : 0
+  name  = "ztl-ek-elasticsearch-data"
+  size  = var.ek_data_disk_size
+  type  = "pd-ssd"
 }
 
 # ek instance reserved internal address
 resource "google_compute_address" "ek" {
+  count        = var.ek_instance_count > 0 ? 1 : 0
   name         = "ztl-ek"
   subnetwork   = var.subnetwork_name
   address_type = "INTERNAL"
@@ -187,6 +189,7 @@ resource "google_compute_address" "ek" {
 
 # elasticsearch kibana instance
 resource "google_compute_instance" "ek1" {
+  count        = var.ek_instance_count > 0 ? 1 : 0
   name         = "ztl-ek-1"
   machine_type = var.ek_machine_type
   tags         = ["elastic", "kibana", "ssh"]
@@ -203,17 +206,17 @@ resource "google_compute_instance" "ek1" {
   }
 
   attached_disk {
-    source      = google_compute_disk.elasticsearch.self_link
+    source      = google_compute_disk.elasticsearch[0].self_link
     device_name = "elasticsearch"
   }
 
   network_interface {
     subnetwork = var.subnetwork_name
-    network_ip = google_compute_address.ek.address
+    network_ip = google_compute_address.ek[0].address
   }
 
   service_account {
-    email  = google_service_account.ek.email
+    email  = google_service_account.ek[0].email
     scopes = ["cloud-platform"]
   }
 

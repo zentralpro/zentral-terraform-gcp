@@ -125,6 +125,14 @@ variable "worker_machine_type" {
   default = "custom-1-1024"
 }
 
+variable "ek_instance_count" {
+  default = 1
+  validation = {
+    condition     = var.ek_instance_count >= 0 && var.ek_instance_count <= 1
+    error_message = "The number of ek instances must be 0 or 1"
+  }
+}
+
 variable "ek_image" {
   default = "LATEST"
 }
