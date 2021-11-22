@@ -4,6 +4,7 @@
 
 # service account for the ek instances
 resource "google_service_account" "ek" {
+  count        = var.ek_instance_count > 0 ? 1 : 0
   account_id   = "ztl-ek-service-account"
   display_name = "Zentral ek service account"
   description  = "Service account for the zentral ek instances"
@@ -11,7 +12,8 @@ resource "google_service_account" "ek" {
 
 # the ek service account needs a private key for the elasticsearch repository
 resource "google_service_account_key" "ek" {
-  service_account_id = google_service_account.ek.name
+  count              = var.ek_instance_count > 0 ? 1 : 0
+  service_account_id = google_service_account.ek[0].name
 }
 
 #
@@ -78,12 +80,12 @@ resource "google_project_iam_custom_role" "service-discovery" {
 resource "google_project_iam_binding" "project" {
   role = google_project_iam_custom_role.service-discovery.id
 
-  members = [
-    "serviceAccount:${google_service_account.ek.email}",
+  members = compact([
+    var.ek_instance_count > 0 ? "serviceAccount:${google_service_account.ek[0].email}" : "",
     "serviceAccount:${google_service_account.monitoring.email}",
     "serviceAccount:${google_service_account.web.email}",
     "serviceAccount:${google_service_account.worker.email}"
-  ]
+  ])
 }
 
 # find the logging.logWriter role
@@ -96,12 +98,12 @@ resource "google_project_iam_binding" "logging" {
   count = var.datadog_api_key == "UNDEFINED" ? 1 : 0
   role  = data.google_iam_role.log-writer.id
 
-  members = [
-    "serviceAccount:${google_service_account.ek.email}",
+  members = compact([
+    var.ek_instance_count > 0 ? "serviceAccount:${google_service_account.ek[0].email}" : "",
     "serviceAccount:${google_service_account.monitoring.email}",
     "serviceAccount:${google_service_account.web.email}",
     "serviceAccount:${google_service_account.worker.email}"
-  ]
+  ])
 }
 
 # find the monitoring.metricWriter role
@@ -114,12 +116,12 @@ resource "google_project_iam_binding" "monitoring" {
   count = var.datadog_api_key == "UNDEFINED" ? 1 : 0
   role  = data.google_iam_role.metric-writer.id
 
-  members = [
-    "serviceAccount:${google_service_account.ek.email}",
+  members = compact([
+    var.ek_instance_count > 0 ? "serviceAccount:${google_service_account.ek[0].email}" : "",
     "serviceAccount:${google_service_account.monitoring.email}",
     "serviceAccount:${google_service_account.web.email}",
     "serviceAccount:${google_service_account.worker.email}"
-  ]
+  ])
 }
 
 # find the monitoring.viewer role

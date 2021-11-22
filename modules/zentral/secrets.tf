@@ -267,6 +267,7 @@ resource "google_secret_manager_secret_version" "worker_private_key" {
 
 # ek_private_key secret
 resource "google_secret_manager_secret" "ek_private_key" {
+  count     = var.ek_instance_count > 0 ? 1 : 0
   secret_id = "ztl-ek-private-key"
 
   replication {
@@ -280,15 +281,17 @@ resource "google_secret_manager_secret" "ek_private_key" {
 
 # ek_private_key read access for ek service account
 resource "google_secret_manager_secret_iam_member" "ek_private_key" {
-  secret_id = google_secret_manager_secret.ek_private_key.secret_id
+  count     = var.ek_instance_count > 0 ? 1 : 0
+  secret_id = google_secret_manager_secret.ek_private_key[0].secret_id
   role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_service_account.ek.email}"
+  member    = "serviceAccount:${google_service_account.ek[0].email}"
 }
 
 # ek_private_key value
 resource "google_secret_manager_secret_version" "ek_private_key" {
-  secret      = google_secret_manager_secret.ek_private_key.id
-  secret_data = base64decode(google_service_account_key.ek.private_key)
+  count       = var.ek_instance_count > 0 ? 1 : 0
+  secret      = google_secret_manager_secret.ek_private_key[0].id
+  secret_data = base64decode(google_service_account_key.ek[0].private_key)
 }
 
 #
@@ -347,9 +350,10 @@ resource "google_secret_manager_secret" "datadog_api_key" {
 
 # datadog_api_key read access for ek service accounts
 resource "google_secret_manager_secret_iam_member" "datadog_api_key_ek" {
+  count     = var.ek_instance_count > 0 ? 1 : 0
   secret_id = google_secret_manager_secret.datadog_api_key.secret_id
   role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_service_account.ek.email}"
+  member    = "serviceAccount:${google_service_account.ek[0].email}"
 }
 
 # datadog_api_key read access for monitoring service accounts
@@ -443,9 +447,10 @@ resource "google_secret_manager_secret" "smtp_relay_password" {
 
 # smtp_relay_password read access for ek service accounts
 resource "google_secret_manager_secret_iam_member" "smtp_relay_password_ek" {
+  count     = var.ek_instance_count > 0 ? 1 : 0
   secret_id = google_secret_manager_secret.smtp_relay_password.secret_id
   role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_service_account.ek.email}"
+  member    = "serviceAccount:${google_service_account.ek[0].email}"
 }
 
 # smtp_relay_password read access for monitoring service accounts
@@ -494,9 +499,10 @@ resource "google_secret_manager_secret" "crowdstrike_cid" {
 
 # crowdstrike_cid read access for ek service accounts
 resource "google_secret_manager_secret_iam_member" "crowdstrike_cid_ek" {
+  count     = var.ek_instance_count > 0 ? 1 : 0
   secret_id = google_secret_manager_secret.crowdstrike_cid.secret_id
   role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_service_account.ek.email}"
+  member    = "serviceAccount:${google_service_account.ek[0].email}"
 }
 
 # crowdstrike_cid read access for monitoring service accounts
