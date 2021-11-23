@@ -228,6 +228,18 @@ module "zentral" {
   # splunk store in base.json.
   # splunk_hec_token = var.splunk_hec_token
 
+  # splunk_api_token is a secret, so it is defined in variables.tf,
+  # and can be passed in the environment. Do not set it here.
+  # default = "UNDEFINED" → it will not be added to an eventual
+  # splunk store in base.json.
+  # splunk_api_token = var.splunk_api_token
+
+  # splunk_api_cf_access_client_secret is a secret, so it is defined in variables.tf,
+  # and can be passed in the environment. Do not set it here.
+  # default = "UNDEFINED" → it will not be added to an eventual
+  # splunk store in base.json.
+  # splunk_api_cf_access_client_secret = var.splunk_api_cf_access_client_secret
+
 
   ########################
   # Geolite2 credentials #

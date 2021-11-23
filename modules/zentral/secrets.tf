@@ -429,6 +429,66 @@ resource "google_secret_manager_secret_version" "splunk_hec_token" {
 }
 
 #
+# splunk_api_token: Authentication token for the Splunk API
+#
+
+# splunk_api_token secret
+resource "google_secret_manager_secret" "splunk_api_token" {
+  secret_id = "ztl-splunk-api-token"
+
+  replication {
+    user_managed {
+      replicas {
+        location = data.google_client_config.current.region
+      }
+    }
+  }
+}
+
+# splunk_api_token read access for web service accounts
+resource "google_secret_manager_secret_iam_member" "splunk_api_token_web" {
+  secret_id = google_secret_manager_secret.splunk_api_token.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.web.email}"
+}
+
+# splunk_api_token value
+resource "google_secret_manager_secret_version" "splunk_api_token" {
+  secret      = google_secret_manager_secret.splunk_api_token.id
+  secret_data = var.splunk_api_token
+}
+
+#
+# splunk_api_cf_access_client_secret: Clouflare secret for the Splunk API
+#
+
+# splunk_api_cf_access_client_secret secret
+resource "google_secret_manager_secret" "splunk_api_cf_access_client_secret" {
+  secret_id = "ztl-splunk-api-cf-access-client-secret"
+
+  replication {
+    user_managed {
+      replicas {
+        location = data.google_client_config.current.region
+      }
+    }
+  }
+}
+
+# splunk_api_cf_access_client_secret read access for web service accounts
+resource "google_secret_manager_secret_iam_member" "splunk_api_cf_access_client_secret_web" {
+  secret_id = google_secret_manager_secret.splunk_api_cf_access_client_secret.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.web.email}"
+}
+
+# splunk_api_cf_access_client_secret value
+resource "google_secret_manager_secret_version" "splunk_api_cf_access_client_secret" {
+  secret      = google_secret_manager_secret.splunk_api_cf_access_client_secret.id
+  secret_data = var.splunk_api_cf_access_client_secret
+}
+
+#
 # smtp_relay_password
 #
 

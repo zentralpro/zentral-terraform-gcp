@@ -101,6 +101,13 @@ variable "splunk_hec_token" {
   default = "UNDEFINED"
 }
 
+variable "splunk_api_token" {
+  default = "UNDEFINED"
+}
+
+variable "splunk_api_cf_access_client_secret" {
+  default = "UNDEFINED"
+}
 
 # instances
 

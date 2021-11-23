@@ -13,6 +13,14 @@ variable "splunk_hec_token" {
   sensitive = true
 }
 
+variable "splunk_api_token" {
+  default = "UNDEFINED"
+}
+
+variable "splunk_api_cf_access_client_secret" {
+  default = "UNDEFINED"
+}
+
 variable "geolite2_license_key" {
   default   = "UNDEFINED"
   sensitive = true
