@@ -74,6 +74,12 @@ resource "google_compute_region_instance_group_manager" "web" {
     max_surge_fixed              = max(3, var.web_mig_target_size)
     min_ready_sec                = 120
   }
+
+  lifecycle {
+    ignore_changes = [
+      version.0.name
+    ]
+  }
 }
 
 #
@@ -150,6 +156,12 @@ resource "google_compute_region_instance_group_manager" "worker" {
     max_unavailable_fixed        = 0
     max_surge_fixed              = max(3, var.worker_mig_target_size)
     min_ready_sec                = 120
+  }
+
+  lifecycle {
+    ignore_changes = [
+      version.0.name
+    ]
   }
 }
 
