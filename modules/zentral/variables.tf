@@ -69,6 +69,11 @@ variable "real_ip_header" {
   default     = "UNDEFINED"
 }
 
+variable "collect_nginx_access_log" {
+  description = "Boolean to activate or deactivate the collection of the Nginx access log."
+  default     = true
+}
+
 variable "geolite2_account_id" {
   default = "UNDEFINED"
 }

@@ -65,6 +65,11 @@ resource "google_compute_project_metadata_item" "nginx_http_realip" {
   })
 }
 
+resource "google_compute_project_metadata_item" "collect_nginx_access_log" {
+  key   = "zentral_collect_nginx_access_log"
+  value = var.collect_nginx_access_log ? "1" : "0"
+}
+
 resource "google_compute_project_metadata_item" "geolite2_account_id" {
   key   = "zentral_geolite2_account_id"
   value = var.geolite2_account_id

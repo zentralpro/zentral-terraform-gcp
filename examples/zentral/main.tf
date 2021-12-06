@@ -115,6 +115,10 @@ module "zentral" {
   #]
   # real_ip_header = "CF-Connecting-IP"
 
+  # Activate or deactivate the collection of the Nginx access log.
+  # Activated by default.
+  # collect_nginx_access_log = true
+
 
   ############################
   # SMTP relay configuration #
