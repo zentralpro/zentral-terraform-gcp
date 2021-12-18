@@ -44,7 +44,7 @@ resource "google_project_service" "service" {
 
 # the zentral VPC
 module "vpc" {
-  source = "git@github.com:zentralpro/zentral-terraform-gcp.git//modules/vpc?ref=v0.2.11"
+  source = "git@github.com:zentralpro/zentral-terraform-gcp.git//modules/vpc?ref=v0.2.23"
 
   depends_on = [
     google_project_service.service
@@ -61,7 +61,7 @@ module "vpc" {
 
 # the main zentral module
 module "zentral" {
-  source = "git@github.com:zentralpro/zentral-terraform-gcp.git//modules/zentral?ref=v0.2.11"
+  source = "git@github.com:zentralpro/zentral-terraform-gcp.git//modules/zentral?ref=v0.2.23"
 
   depends_on = [
     google_project_service.service
@@ -289,4 +289,20 @@ module "zentral" {
   # DANGER!!! ONLY DEV!!!
   # Set to true during testing to remove the db deletion protection and allow non-empty bucket deletion
   # destroy_all_resources = false
+}
+
+# the monitoring module
+module "monitoring" {
+  source = "git@github.com:zentralpro/zentral-terraform-gcp.git//modules/monitoring?ref=v0.2.23"
+
+  # list of email addresses for the alert notifications
+  # email_addresses = []
+
+  # fqdn to monitor
+  fqdn = module.zentral.fqdn
+
+  # google pub/sub subscriptions undelivered messages alarm threshold
+  # undelivered_messages_threshold = 5000
+  # google pub/sub subscriptions oldest unacked message alarm threshold, in seconds
+  # oldest_unacked_message_threshold = 3600
 }
