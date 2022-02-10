@@ -114,5 +114,7 @@ GCP predefined roles covering the necessary permissions to run the TF setup:
 |`google_app_engine_application`||`roles/appengine.appAdmin`<br>`roles/appengine.appCreator`|[access](https://cloud.google.com/appengine/docs/standard/go/roles#predefined_roles)|
 |`google_cloud_scheduler_job`||`roles/cloudScheduler.admin`||
 |`google_cloudfunctions_function`||`roles/cloudfunctions.developer`<br>*(IAM permissions already covered)*|[roles](https://cloud.google.com/functions/docs/reference/iam/roles)|
-
-
+|**ONLY IF MONITORING:**||||
+|`google_monitoring_alert_policy`||`roles/monitoring.alertPolicyEditor`|
+|`google_monitoring_notification_channel`||`roles/monitoring.notificationChannelEditor`|
+|`google_monitoring_uptime_check_config`||`roles/monitoring.uptimeCheckConfigEditor`|

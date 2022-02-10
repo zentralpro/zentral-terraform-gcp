@@ -32,10 +32,15 @@ resource "google_project_iam_member" "terraform" {
     "roles/secretmanager.admin",
     "roles/cloudsql.admin",
     "roles/storage.admin",
+    # cloud function
     "roles/appengine.appAdmin",
     "roles/appengine.appCreator",
     "roles/cloudscheduler.admin",
-    "roles/cloudfunctions.developer"
+    "roles/cloudfunctions.developer",
+    # monitoring
+    "roles/monitoring.alertPolicyEditor",
+    "roles/monitoring.notificationChannelEditor",
+    "roles/monitoring.uptimeCheckConfigEditor",
   ])
   project = google_project.this.project_id
   role    = each.key
