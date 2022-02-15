@@ -272,6 +272,40 @@ module "zentral" {
   # configured.
   # crowdstrike_cid = var.crowdstrike_cid
 
+
+  ################
+  # FireEye xagt #
+  ################
+
+  # If both xagt_deb_file and xagt_config_file are set, the FireEye agent will be installed
+  # and configured on all the instances.
+
+  # The path to the FireEye xagt Debian package. If set, it will be uploaded to the dist bucket.
+  # xagt_deb_file = "UNDEFINED"
+
+  # The path to the FireEye xagt config. If set, it will be uploaded to the dist bucket.
+  # xagt_config_file = "UNDEFINED"
+
+
+  ##################
+  # Tenable Nessus #
+  ##################
+
+  # Set nessus_deb_file, nessus_key, and nessus_groups to have the Nessus agent installed
+  # and configured on all the instances.
+
+  # The path to the Tenable Nessus Debian package. If set, it will be uploaded to the dist bucket.
+  # nessus_deb_file = "UNDEFINED"
+
+  # nessus_key is a secret, so it is defined in variables.tf,
+  # and can be passed in the environment. Do not set it here.
+  # default = "UNDEFINED" → The Tenable Nessus agent will not be configured.
+  # nessus_key = var.nessus_key
+
+  # The comma separated list of Nessus groups.
+  # nessus_groups = "UNDEFINED"
+
+
   ##########################
   # Certbot cloud function #
   ##########################

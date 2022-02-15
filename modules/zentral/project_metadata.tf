@@ -119,3 +119,23 @@ resource "google_compute_project_metadata_item" "crowdstrike_deb" {
   key   = "zentral_crowdstrike_deb"
   value = var.crowdstrike_deb
 }
+
+resource "google_compute_project_metadata_item" "xagt_deb" {
+  key   = "zentral_xagt_deb"
+  value = length(google_storage_bucket_object.xagt_deb) > 0 ? google_storage_bucket_object.xagt_deb[0].name : "UNDEFINED"
+}
+
+resource "google_compute_project_metadata_item" "xagt_config" {
+  key   = "zentral_xagt_config"
+  value = length(google_storage_bucket_object.xagt_config) > 0 ? google_storage_bucket_object.xagt_config[0].name : "UNDEFINED"
+}
+
+resource "google_compute_project_metadata_item" "nessus_deb" {
+  key   = "zentral_nessus_deb"
+  value = length(google_storage_bucket_object.nessus_deb) > 0 ? google_storage_bucket_object.nessus_deb[0].name : "UNDEFINED"
+}
+
+resource "google_compute_project_metadata_item" "nessus_groups" {
+  key   = "zentral_nessus_groups"
+  value = var.nessus_groups
+}

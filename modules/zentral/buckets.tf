@@ -97,3 +97,24 @@ resource "google_storage_bucket_iam_member" "dist-bucket-worker-service-account-
   role   = "roles/storage.objectViewer"
   member = "serviceAccount:${google_service_account.worker.email}"
 }
+
+resource "google_storage_bucket_object" "xagt_deb" {
+  count  = var.xagt_deb_file != "UNDEFINED" ? 1 : 0
+  bucket = google_storage_bucket.dist.name
+  name   = basename(var.xagt_deb_file)
+  source = var.xagt_deb_file
+}
+
+resource "google_storage_bucket_object" "xagt_config" {
+  count  = var.xagt_config_file != "UNDEFINED" ? 1 : 0
+  bucket = google_storage_bucket.dist.name
+  name   = basename(var.xagt_config_file)
+  source = var.xagt_config_file
+}
+
+resource "google_storage_bucket_object" "nessus_deb" {
+  count  = var.nessus_deb_file != "UNDEFINED" ? 1 : 0
+  bucket = google_storage_bucket.dist.name
+  name   = basename(var.nessus_deb_file)
+  source = var.nessus_deb_file
+}

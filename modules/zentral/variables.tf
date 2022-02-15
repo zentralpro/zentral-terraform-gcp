@@ -227,6 +227,35 @@ variable "crowdstrike_deb" {
   default     = "UNDEFINED"
 }
 
+# FireEye xagt
+
+variable "xagt_deb_file" {
+  description = "Path to the FireEye xagt Debian package"
+  default     = "UNDEFINED"
+}
+
+variable "xagt_config_file" {
+  description = "Path to the FireEye xagt config file"
+  default     = "UNDEFINED"
+}
+
+# Tenable Nessus
+
+variable "nessus_deb_file" {
+  description = "Path to the Tenable Nessus Debian package"
+  default     = "UNDEFINED"
+}
+
+variable "nessus_key" {
+  description = "Tenable Nessus key"
+  default     = "UNDEFINED"
+}
+
+variable "nessus_groups" {
+  description = "Tenable Nessus groups"
+  default     = "UNDEFINED"
+}
+
 # Certbot cloud function
 
 variable "cloudflare_api_token" {

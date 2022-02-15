@@ -31,6 +31,11 @@ variable "crowdstrike_cid" {
   sensitive = true
 }
 
+variable "nessus_key" {
+  default   = "UNDEFINED"
+  sensitive = true
+}
+
 #variable "cloudflare_api_token" {
 #  type = string
 #  sensitive = true

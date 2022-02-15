@@ -591,3 +591,55 @@ resource "google_secret_manager_secret_version" "crowdstrike_cid" {
   secret      = google_secret_manager_secret.crowdstrike_cid.id
   secret_data = var.crowdstrike_cid
 }
+
+#
+# nessus_key
+#
+
+# nessus_key secret
+resource "google_secret_manager_secret" "nessus_key" {
+  secret_id = "ztl-nessus-key"
+
+  replication {
+    user_managed {
+      replicas {
+        location = data.google_client_config.current.region
+      }
+    }
+  }
+}
+
+# nessus_key read access for ek service accounts
+resource "google_secret_manager_secret_iam_member" "nessus_key_ek" {
+  count     = var.ek_instance_count > 0 ? 1 : 0
+  secret_id = google_secret_manager_secret.nessus_key.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.ek[0].email}"
+}
+
+# nessus_key read access for monitoring service accounts
+resource "google_secret_manager_secret_iam_member" "nessus_key_monitoring" {
+  secret_id = google_secret_manager_secret.nessus_key.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.monitoring.email}"
+}
+
+# nessus_key read access for web service accounts
+resource "google_secret_manager_secret_iam_member" "nessus_key_web" {
+  secret_id = google_secret_manager_secret.nessus_key.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.web.email}"
+}
+
+# nessus_key read access for worker service accounts
+resource "google_secret_manager_secret_iam_member" "nessus_key_worker" {
+  secret_id = google_secret_manager_secret.nessus_key.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.worker.email}"
+}
+
+# nessus_key value
+resource "google_secret_manager_secret_version" "nessus_key" {
+  secret      = google_secret_manager_secret.nessus_key.id
+  secret_data = var.nessus_key
+}
