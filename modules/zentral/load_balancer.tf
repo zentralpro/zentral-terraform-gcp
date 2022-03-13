@@ -1,3 +1,4 @@
+# legacy http health check for network load balancer
 resource "google_compute_http_health_check" "web" {
   name         = "ztl-web-health-check"
   request_path = "/app-health-check"

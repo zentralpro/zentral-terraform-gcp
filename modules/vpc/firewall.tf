@@ -30,7 +30,7 @@ resource "google_compute_firewall" "allow-http-https" {
   target_tags = ["web"]
 }
 
-# allow health checks to the web tagged instances
+# allow network load balancer health checks to the web tagged instances
 # see https://cloud.google.com/load-balancing/docs/health-check-concepts#ip-ranges
 resource "google_compute_firewall" "allow-network-lb-health-checks" {
   name        = "allow-network-lb-health-checks"
@@ -42,11 +42,54 @@ resource "google_compute_firewall" "allow-network-lb-health-checks" {
     ports    = ["8080"]
   }
 
-  source_ranges = ["35.191.0.0/16",
+  source_ranges = [
+    "35.191.0.0/16",
     "209.85.152.0/22",
-  "209.85.204.0/22"]
+    "209.85.204.0/22",
+  ]
 
   target_tags = ["web"]
+}
+
+# allow autohealing health checks to the web tagged instances
+# see https://cloud.google.com/load-balancing/docs/health-check-concepts#ip-ranges
+resource "google_compute_firewall" "allow-web-mig-health-checks" {
+  name        = "allow-web-mig-health-checks"
+  description = "Allow the web managed instance group to do health checks"
+  network     = google_compute_network.zentral.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["8081"]
+  }
+
+  source_ranges = [
+    "35.191.0.0/16",
+    "130.211.0.0/22"
+  ]
+
+  target_tags = ["web"]
+}
+
+# allow autohealing health checks to the worker tagged instances
+# the first worker prometheus metrics endpoint is used
+# see https://cloud.google.com/load-balancing/docs/health-check-concepts#ip-ranges
+resource "google_compute_firewall" "allow-worker-mig-health-checks" {
+  name        = "allow-worker-mig-health-checks"
+  description = "Allow the worker managed instance group to do health checks"
+  network     = google_compute_network.zentral.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["9910"]
+  }
+
+  source_ranges = [
+    "35.191.0.0/16",
+    "130.211.0.0/22"
+  ]
+
+  target_tags = ["worker"]
 }
 
 # allow connections from the web instances to the elastic instances

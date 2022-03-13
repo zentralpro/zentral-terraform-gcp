@@ -52,6 +52,20 @@ EOT
 
 }
 
+# autohealing health check for the web instances
+resource "google_compute_health_check" "web_mig" {
+  name                = "ztl-web-mig-autohealing-health-check"
+  check_interval_sec  = 10
+  timeout_sec         = 5
+  healthy_threshold   = 1
+  unhealthy_threshold = 3
+
+  http_health_check {
+    request_path = "/instance-health-check"
+    port         = "8081"
+  }
+}
+
 # managed instance group for the web instances
 resource "google_compute_region_instance_group_manager" "web" {
   name = "ztl-web-mig"
@@ -66,13 +80,17 @@ resource "google_compute_region_instance_group_manager" "web" {
     instance_template = google_compute_instance_template.web.id
   }
 
+  auto_healing_policies {
+    health_check      = google_compute_health_check.web_mig.id
+    initial_delay_sec = 1200
+  }
+
   update_policy {
     type                         = "PROACTIVE"
     instance_redistribution_type = "PROACTIVE"
     minimal_action               = "REPLACE"
     max_unavailable_fixed        = 0
     max_surge_fixed              = max(3, var.web_mig_target_size)
-    min_ready_sec                = 120
   }
 
   lifecycle {
@@ -136,6 +154,21 @@ EOT
 
 }
 
+# autohealing health check for the worker instances
+resource "google_compute_health_check" "worker_mig" {
+  name                = "ztl-worker-mig-autohealing-health-check"
+  check_interval_sec  = 30
+  timeout_sec         = 10
+  healthy_threshold   = 1
+  unhealthy_threshold = 5
+
+  # the first worker prometheus metrics endpoint is used
+  http_health_check {
+    request_path = "/metrics"
+    port         = "9910"
+  }
+}
+
 # managed instance group for the worker instances
 resource "google_compute_region_instance_group_manager" "worker" {
   name = "ztl-worker-mig"
@@ -149,13 +182,17 @@ resource "google_compute_region_instance_group_manager" "worker" {
     instance_template = google_compute_instance_template.worker.id
   }
 
+  auto_healing_policies {
+    health_check      = google_compute_health_check.worker_mig.id
+    initial_delay_sec = 1200
+  }
+
   update_policy {
     type                         = "PROACTIVE"
     instance_redistribution_type = "PROACTIVE"
     minimal_action               = "REPLACE"
     max_unavailable_fixed        = 0
     max_surge_fixed              = max(3, var.worker_mig_target_size)
-    min_ready_sec                = 120
   }
 
   lifecycle {
