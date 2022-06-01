@@ -8,6 +8,12 @@ variable "subnetwork_name" {
   type = string
 }
 
+# external admins
+variable "external_admins" {
+  type    = list(string)
+  default = []
+}
+
 # web instances managed instance group target size
 variable "web_mig_target_size" {
   default = 2

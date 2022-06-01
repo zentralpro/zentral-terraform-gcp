@@ -70,6 +70,9 @@ module "zentral" {
   network_id      = module.vpc.network_id
   subnetwork_name = module.vpc.subnetwork_name
 
+  # a list of google users (emails) which will be given
+  # access to the project for maintenance and support
+  # external_admins = []
 
   ##########################
   # FQDN / mTLS / DNS / IP #
