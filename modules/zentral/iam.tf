@@ -38,11 +38,6 @@ resource "google_service_account" "web" {
   description  = "Service account for the zentral web instances"
 }
 
-# the web service account needs a private key to sign gcs blob URLs
-resource "google_service_account_key" "web" {
-  service_account_id = google_service_account.web.name
-}
-
 #
 # SA for worker instances with PK
 #
@@ -52,11 +47,6 @@ resource "google_service_account" "worker" {
   account_id   = "ztl-worker-service-account"
   display_name = "Zentral worker service account"
   description  = "Service account for the zentral worker instances"
-}
-
-# the worker service account needs a private key to sign gcs blob URLs
-resource "google_service_account_key" "worker" {
-  service_account_id = google_service_account.worker.name
 }
 
 #
@@ -86,6 +76,25 @@ resource "google_project_iam_binding" "project" {
     "serviceAccount:${google_service_account.web.email}",
     "serviceAccount:${google_service_account.worker.email}"
   ])
+}
+
+# role with signBlob permission for signing GCS blob URLs
+resource "google_project_iam_custom_role" "gcs_signing" {
+  role_id = "ztlGCSSigning"
+  title   = "Zentral GCS signing role"
+  permissions = [
+    "iam.serviceAccounts.signBlob"
+  ]
+}
+
+# bind the role to the web and worker service accounts
+resource "google_project_iam_binding" "gcs_signing" {
+  role = google_project_iam_custom_role.gcs_signing.id
+
+  members = [
+    "serviceAccount:${google_service_account.web.email}",
+    "serviceAccount:${google_service_account.worker.email}"
+  ]
 }
 
 # find the logging.logWriter role

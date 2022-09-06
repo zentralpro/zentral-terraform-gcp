@@ -199,68 +199,6 @@ resource "google_secret_manager_secret_version" "metrics_bearer_token" {
 }
 
 #
-# web_private_key: private key for the web service account
-# needed to be able to sign GCS blob URLs
-#
-
-# web_private_key secret
-resource "google_secret_manager_secret" "web_private_key" {
-  secret_id = "ztl-web-private-key"
-
-  replication {
-    user_managed {
-      replicas {
-        location = data.google_client_config.current.region
-      }
-    }
-  }
-}
-
-# web_private_key read access for web service account
-resource "google_secret_manager_secret_iam_member" "web_private_key" {
-  secret_id = google_secret_manager_secret.web_private_key.secret_id
-  role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_service_account.web.email}"
-}
-
-# web_private_key value
-resource "google_secret_manager_secret_version" "web_private_key" {
-  secret      = google_secret_manager_secret.web_private_key.id
-  secret_data = base64decode(google_service_account_key.web.private_key)
-}
-
-#
-# worker_private_key: private key for the worker service account
-# needed to be able to sign GCS blob URLs
-#
-
-# worker_private_key secret
-resource "google_secret_manager_secret" "worker_private_key" {
-  secret_id = "ztl-worker-private-key"
-
-  replication {
-    user_managed {
-      replicas {
-        location = data.google_client_config.current.region
-      }
-    }
-  }
-}
-
-# worker_private_key read access for worker service account
-resource "google_secret_manager_secret_iam_member" "worker_private_key" {
-  secret_id = google_secret_manager_secret.worker_private_key.secret_id
-  role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_service_account.worker.email}"
-}
-
-# worker_private_key value
-resource "google_secret_manager_secret_version" "worker_private_key" {
-  secret      = google_secret_manager_secret.worker_private_key.id
-  secret_data = base64decode(google_service_account_key.worker.private_key)
-}
-
-#
 # ek_private_key: private key for the ek service account
 # needed by elasticsearch to access the bucket
 #
