@@ -2,9 +2,10 @@
 # web instances
 #
 
+
 # latest web image when terraform runs
 data "google_compute_image" "web_latest" {
-  family  = "ztl-web"
+  family  = length(regexall("^t2a.*", var.web_machine_type)) > 0 ? "ztl-web-arm64" : "ztl-web"
   project = var.images_project
 }
 
@@ -70,8 +71,9 @@ resource "google_compute_health_check" "web_mig" {
 resource "google_compute_region_instance_group_manager" "web" {
   name = "ztl-web-mig"
 
-  base_instance_name = "ztl-web"
-  region             = data.google_client_config.current.region
+  base_instance_name        = "ztl-web"
+  region                    = data.google_client_config.current.region
+  distribution_policy_zones = var.web_mig_distribution_policy_zones
 
   target_pools = [google_compute_target_pool.web.id]
   target_size  = var.web_mig_target_size
@@ -106,7 +108,7 @@ resource "google_compute_region_instance_group_manager" "web" {
 
 # latest worker image when terraform runs
 data "google_compute_image" "worker_latest" {
-  family  = "ztl-worker"
+  family  = length(regexall("^t2a.*", var.worker_machine_type)) > 0 ? "ztl-worker-arm64" : "ztl-worker"
   project = var.images_project
 }
 
@@ -173,8 +175,9 @@ resource "google_compute_health_check" "worker_mig" {
 resource "google_compute_region_instance_group_manager" "worker" {
   name = "ztl-worker-mig"
 
-  base_instance_name = "ztl-worker"
-  region             = data.google_client_config.current.region
+  base_instance_name        = "ztl-worker"
+  region                    = data.google_client_config.current.region
+  distribution_policy_zones = var.worker_mig_distribution_policy_zones
 
   target_size = var.worker_mig_target_size
 
@@ -208,7 +211,7 @@ resource "google_compute_region_instance_group_manager" "worker" {
 
 # latest ek image when terraform runs
 data "google_compute_image" "ek_latest" {
-  family  = "ztl-ek"
+  family  = length(regexall("^t2a.*", var.ek_machine_type)) > 0 ? "ztl-ek-arm64" : "ztl-ek"
   project = var.images_project
 }
 
@@ -289,7 +292,7 @@ EOT
 
 # latest monitoring image when terraform runs
 data "google_compute_image" "monitoring_latest" {
-  family  = "ztl-monitoring"
+  family  = length(regexall("^t2a.*", var.monitoring_machine_type)) > 0 ? "ztl-monitoring-arm64" : "ztl-monitoring"
   project = var.images_project
 }
 

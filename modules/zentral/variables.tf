@@ -19,9 +19,21 @@ variable "web_mig_target_size" {
   default = 2
 }
 
+variable "web_mig_distribution_policy_zones" {
+  description = "Zones to use to distribute the web instances"
+  type        = list(string)
+  default     = null
+}
+
 # worker instances managed instance group target size
 variable "worker_mig_target_size" {
   default = 1
+}
+
+variable "worker_mig_distribution_policy_zones" {
+  description = "Zones to use to distribute the worker instances"
+  type        = list(string)
+  default     = null
 }
 
 # project metadata used during setup

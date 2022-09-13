@@ -161,6 +161,8 @@ module "zentral" {
   # web_machine_type = "custom-1-1024"
   # Target size of the managed instance group
   # web_mig_target_size = 2
+  # Zones to use to distribute the web instances. Some instance types are only available in some zones of a region.
+  # web_mig_distribution_policy_zones = null
   # Image. Change this if you want to pin a version
   # web_image = "LATEST"
 
@@ -168,6 +170,8 @@ module "zentral" {
   # worker_machine_type = "custom-1-1024"
   # Target size of the managed instance group
   # worker_mig_target_size = 1
+  # Zones to use to distribute the worker instances. Some instance types are only available in some zones of a region.
+  # worker_mig_distribution_policy_zones = null
   # Image. Change this if you want to pin a version
   # worker_image = "LATEST"
 
