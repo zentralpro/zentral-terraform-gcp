@@ -132,7 +132,7 @@ variable "web_image" {
 }
 
 variable "web_machine_type" {
-  default = "custom-1-1024"
+  default = "t2d-standard-1"
 }
 
 variable "worker_image" {
@@ -140,7 +140,7 @@ variable "worker_image" {
 }
 
 variable "worker_machine_type" {
-  default = "custom-1-1024"
+  default = "t2d-standard-1"
 }
 
 variable "ek_instance_count" {
@@ -156,7 +156,7 @@ variable "ek_image" {
 }
 
 variable "ek_machine_type" {
-  default = "custom-1-5120"
+  default = "t2d-standard-2"
 }
 
 variable "ek_data_disk_size" {
@@ -172,7 +172,7 @@ variable "monitoring_image" {
 }
 
 variable "monitoring_machine_type" {
-  default = "custom-1-1024"
+  default = "t2d-standard-1"
 }
 
 # DB backup
