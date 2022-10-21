@@ -330,10 +330,11 @@ resource "google_compute_address" "monitoring" {
 
 # monitoring instance
 resource "google_compute_instance" "monitoring" {
-  count        = local.monitoring_instance_count
-  name         = "ztl-monitoring"
-  machine_type = var.monitoring_machine_type
-  tags         = ["monitoring", "ssh"]
+  count                     = local.monitoring_instance_count
+  name                      = "ztl-monitoring"
+  machine_type              = var.monitoring_machine_type
+  allow_stopping_for_update = true
+  tags                      = ["monitoring", "ssh"]
   labels = {
     ztl-sa-short-name = "monitoring"
   }
