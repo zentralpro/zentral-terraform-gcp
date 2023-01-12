@@ -30,6 +30,7 @@ resource "google_compute_instance_template" "web" {
   disk {
     source_image = var.web_image == "LATEST" ? data.google_compute_image.web_latest.self_link : data.google_compute_image.web[0].self_link
     disk_type    = "pd-ssd"
+    disk_size_gb = var.web_instance_disk_size
   }
 
   network_interface {
@@ -133,6 +134,7 @@ resource "google_compute_instance_template" "worker" {
   disk {
     source_image = var.worker_image == "LATEST" ? data.google_compute_image.worker_latest.self_link : data.google_compute_image.worker[0].self_link
     disk_type    = "pd-ssd"
+    disk_size_gb = var.worker_instance_disk_size
   }
 
   network_interface {
@@ -342,7 +344,7 @@ resource "google_compute_instance" "monitoring" {
   boot_disk {
     initialize_params {
       image = var.monitoring_image == "LATEST" ? data.google_compute_image.monitoring_latest.self_link : data.google_compute_image.monitoring[0].self_link
-      size  = 10
+      size  = var.monitoring_instance_disk_size
       type  = "pd-ssd"
     }
   }
