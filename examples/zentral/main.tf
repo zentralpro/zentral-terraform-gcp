@@ -346,4 +346,6 @@ module "monitoring" {
   # undelivered_messages_threshold = 5000
   # google pub/sub subscriptions oldest unacked message alarm threshold, in seconds
   # oldest_unacked_message_threshold = 3600
+  # google vm disk utilization free space alarm threshold, in %
+  # min_vm_disk_free_space_threshold = 15
 }

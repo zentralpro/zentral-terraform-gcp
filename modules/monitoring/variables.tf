@@ -17,3 +17,8 @@ variable "oldest_unacked_message_threshold" {
   description = "Subscriptions oldest unacked message alarm threshold, in seconds"
   default     = 3600
 }
+
+variable "min_vm_disk_free_space_threshold" {
+  description = "Minimum VM disk free space, in %"
+  default     = 15
+}
