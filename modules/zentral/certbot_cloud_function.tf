@@ -131,6 +131,7 @@ resource "google_cloudfunctions_function" "certbot" {
   service_account_email = google_service_account.certbot[0].email
   available_memory_mb   = 256
   timeout               = 300
+  max_instances         = 1
   event_trigger {
     event_type = "google.pubsub.topic.publish"
     resource   = google_pubsub_topic.certbot[0].id
