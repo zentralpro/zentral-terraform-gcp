@@ -23,7 +23,6 @@ resource "google_project_iam_member" "terraform" {
     "roles/iam.roleAdmin",
     "roles/iam.serviceAccountAdmin",
     "roles/iam.serviceAccountUser",
-    "roles/iam.serviceAccountKeyAdmin",
     "roles/resourcemanager.projectIamAdmin",
     "roles/compute.admin",
     "roles/servicenetworking.networksAdmin",
@@ -44,6 +43,13 @@ resource "google_project_iam_member" "terraform" {
   ])
   project = google_project.this.project_id
   role    = each.key
+  member  = "serviceAccount:${google_service_account.terraform.email}"
+}
+
+resource "google_project_iam_member" "terraform_es" {
+  count   = var.add_required_es_roles ? 1 : 0
+  project = google_project.this.project_id
+  role    = "roles/iam.serviceAccountKeyAdmin"
   member  = "serviceAccount:${google_service_account.terraform.email}"
 }
 

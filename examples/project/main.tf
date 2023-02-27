@@ -5,4 +5,6 @@ module "project" {
   org_id                    = "0000000000000"
   billing_account           = "000000-000000-000000"
   terraform_bucket_location = "US"
+  // only if an Elasticsearch instance will be deployed in the project
+  add_required_es_roles = true
 }

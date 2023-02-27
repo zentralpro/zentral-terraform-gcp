@@ -17,3 +17,8 @@ variable "billing_account" {
 variable "terraform_bucket_location" {
   default = "US"
 }
+
+variable "add_required_es_roles" {
+  description = "Add the roles required for Elasticsearch to the service account. Defaults to true."
+  default     = true
+}
