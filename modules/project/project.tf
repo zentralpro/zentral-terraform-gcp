@@ -24,7 +24,7 @@ resource "google_project_iam_member" "terraform" {
     "roles/iam.serviceAccountAdmin",
     "roles/iam.serviceAccountUser",
     "roles/iam.serviceAccountKeyAdmin",
-    "roles/iam.securityAdmin",
+    "roles/resourcemanager.projectIamAdmin",
     "roles/compute.admin",
     "roles/servicenetworking.networksAdmin",
     "roles/pubsub.admin",
