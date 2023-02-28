@@ -22,3 +22,18 @@ variable "min_vm_disk_free_space_threshold" {
   description = "Minimum VM disk free space, in %"
   default     = 15
 }
+
+variable "max_cloudsql_cpu_utilization_threshold" {
+  description = "Max CloudSQL CPU utilization, in %"
+  default     = 80
+}
+
+variable "max_cloudsql_disk_utilization_threshold" {
+  description = "Max CloudSQL disk utilization, in %"
+  default     = 80
+}
+
+variable "max_cloudsql_memory_utilization_threshold" {
+  description = "Max CloudSQL memory utilization, in %"
+  default     = 80
+}

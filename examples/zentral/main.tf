@@ -348,4 +348,10 @@ module "monitoring" {
   # oldest_unacked_message_threshold = 3600
   # google vm disk utilization free space alarm threshold, in %
   # min_vm_disk_free_space_threshold = 15
+  # CloudSQL max CPU utilization averaged over 30 min, in %
+  # max_cloudsql_cpu_utilization_threshold = 80
+  # CloudSQL max disk utilization averaged over 30 min, in %
+  # max_cloudsql_disk_utilization_threshold = 80
+  # CloudSQL max memory utilization averaged over 30 min, in %
+  # max_cloudsql_memory_utilization_threshold = 80
 }
