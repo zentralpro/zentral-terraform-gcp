@@ -165,6 +165,8 @@ module "zentral" {
   # web_mig_distribution_policy_zones = null
   # Image. Change this if you want to pin a version
   # web_image = "LATEST"
+  # Image ID. Change this if you want to pin a version. Highest priority.
+  # web_image_id = "LATEST"
 
   # Worker: 1 ⨉ vCPU, 1GB
   # worker_machine_type = "custom-1-1024"
@@ -174,6 +176,8 @@ module "zentral" {
   # worker_mig_distribution_policy_zones = null
   # Image. Change this if you want to pin a version
   # worker_image = "LATEST"
+  # Image ID. Change this if you want to pin a version. Highest priority.
+  # worker_image_id = "LATEST"
 
   # Elasticsearch + Kibana
   # set ek_instance_count to 0 to remove all the resources
@@ -183,6 +187,8 @@ module "zentral" {
   # ek_machine_type = "custom-1-5120"
   # Image. Change this if you want to pin a version
   # ek_image = "LATEST"
+  # Image ID. Change this if you want to pin a version. Highest priority.
+  # ek_image_id = "LATEST"
   # Data disk size, in GB
   # ek_data_disk_size = 30
 
@@ -193,6 +199,8 @@ module "zentral" {
   # monitoring_machine_type = "custom-1-1024"
   # Image. Change this if you want to pin a version
   # monitoring_image = "LATEST"
+  # Image ID. Change this if you want to pin a version. Highest priority.
+  # monitoring_image_id = "LATEST"
 
 
   #############

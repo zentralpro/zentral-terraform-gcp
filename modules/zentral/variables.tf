@@ -143,6 +143,10 @@ variable "web_image" {
   default = "LATEST"
 }
 
+variable "web_image_id" {
+  default = "LATEST"
+}
+
 variable "web_machine_type" {
   default = "t2d-standard-1"
 }
@@ -152,6 +156,10 @@ variable "web_instance_disk_size" {
 }
 
 variable "worker_image" {
+  default = "LATEST"
+}
+
+variable "worker_image_id" {
   default = "LATEST"
 }
 
@@ -175,6 +183,10 @@ variable "ek_image" {
   default = "LATEST"
 }
 
+variable "ek_image_id" {
+  default = "LATEST"
+}
+
 variable "ek_machine_type" {
   default = "t2d-standard-2"
 }
@@ -188,6 +200,10 @@ variable "db_tier" {
 }
 
 variable "monitoring_image" {
+  default = "LATEST"
+}
+
+variable "monitoring_image_id" {
   default = "LATEST"
 }
 

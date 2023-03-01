@@ -2,10 +2,10 @@
 # web instances
 #
 
-
-# latest web image when terraform runs
-data "google_compute_image" "web_latest" {
-  family  = length(regexall("^t2a.*", var.web_machine_type)) > 0 ? "ztl-web-arm64" : "ztl-web"
+# provided web image by ID
+data "google_compute_image" "web_by_id" {
+  count   = var.web_image_id == "LATEST" ? 0 : 1
+  filter  = "id = \"${var.web_image_id}\""
   project = var.images_project
 }
 
@@ -13,6 +13,13 @@ data "google_compute_image" "web_latest" {
 data "google_compute_image" "web" {
   count   = var.web_image == "LATEST" ? 0 : 1
   name    = var.web_image
+  project = var.images_project
+}
+
+# latest web image when terraform runs
+data "google_compute_image" "web_latest" {
+  count   = var.web_image_id == "LATEST" && var.web_image == "LATEST" ? 1 : 0
+  family  = length(regexall("^t2a.*", var.web_machine_type)) > 0 ? "ztl-web-arm64" : "ztl-web"
   project = var.images_project
 }
 
@@ -28,7 +35,11 @@ resource "google_compute_instance_template" "web" {
   }
 
   disk {
-    source_image = var.web_image == "LATEST" ? data.google_compute_image.web_latest.self_link : data.google_compute_image.web[0].self_link
+    source_image = element(concat(
+      data.google_compute_image.web_by_id[*].self_link,
+      data.google_compute_image.web[*].self_link,
+      data.google_compute_image.web_latest[*].self_link,
+    ), 0)
     disk_type    = "pd-ssd"
     disk_size_gb = var.web_instance_disk_size
   }
@@ -107,9 +118,10 @@ resource "google_compute_region_instance_group_manager" "web" {
 # worker instances
 #
 
-# latest worker image when terraform runs
-data "google_compute_image" "worker_latest" {
-  family  = length(regexall("^t2a.*", var.worker_machine_type)) > 0 ? "ztl-worker-arm64" : "ztl-worker"
+# provided worker image by ID
+data "google_compute_image" "worker_by_id" {
+  count   = var.worker_image_id == "LATEST" ? 0 : 1
+  filter  = "id = \"${var.worker_image_id}\""
   project = var.images_project
 }
 
@@ -117,6 +129,13 @@ data "google_compute_image" "worker_latest" {
 data "google_compute_image" "worker" {
   count   = var.worker_image == "LATEST" ? 0 : 1
   name    = var.worker_image
+  project = var.images_project
+}
+
+# latest worker image when terraform runs
+data "google_compute_image" "worker_latest" {
+  count   = var.worker_image_id == "LATEST" && var.worker_image == "LATEST" ? 1 : 0
+  family  = length(regexall("^t2a.*", var.worker_machine_type)) > 0 ? "ztl-worker-arm64" : "ztl-worker"
   project = var.images_project
 }
 
@@ -132,7 +151,11 @@ resource "google_compute_instance_template" "worker" {
   }
 
   disk {
-    source_image = var.worker_image == "LATEST" ? data.google_compute_image.worker_latest.self_link : data.google_compute_image.worker[0].self_link
+    source_image = element(concat(
+      data.google_compute_image.worker_by_id[*].self_link,
+      data.google_compute_image.worker[*].self_link,
+      data.google_compute_image.worker_latest[*].self_link,
+    ), 0)
     disk_type    = "pd-ssd"
     disk_size_gb = var.worker_instance_disk_size
   }
@@ -211,9 +234,10 @@ resource "google_compute_region_instance_group_manager" "worker" {
 # ek instances
 #
 
-# latest ek image when terraform runs
-data "google_compute_image" "ek_latest" {
-  family  = length(regexall("^t2a.*", var.ek_machine_type)) > 0 ? "ztl-ek-arm64" : "ztl-ek"
+# provided ek image by ID
+data "google_compute_image" "ek_by_id" {
+  count   = var.ek_image_id == "LATEST" ? 0 : 1
+  filter  = "id = \"${var.ek_image_id}\""
   project = var.images_project
 }
 
@@ -221,6 +245,13 @@ data "google_compute_image" "ek_latest" {
 data "google_compute_image" "ek" {
   count   = var.ek_image == "LATEST" ? 0 : 1
   name    = var.ek_image
+  project = var.images_project
+}
+
+# latest ek image when terraform runs
+data "google_compute_image" "ek_latest" {
+  count   = var.ek_image_id == "LATEST" && var.ek_image == "LATEST" ? 1 : 0
+  family  = length(regexall("^t2a.*", var.ek_machine_type)) > 0 ? "ztl-ek-arm64" : "ztl-ek"
   project = var.images_project
 }
 
@@ -253,9 +284,13 @@ resource "google_compute_instance" "ek1" {
 
   boot_disk {
     initialize_params {
-      image = var.ek_image == "LATEST" ? data.google_compute_image.ek_latest.self_link : data.google_compute_image.ek[0].self_link
-      size  = 10
-      type  = "pd-ssd"
+      image = element(concat(
+        data.google_compute_image.ek_by_id[*].self_link,
+        data.google_compute_image.ek[*].self_link,
+        data.google_compute_image.ek_latest[*].self_link,
+      ), 0)
+      size = 10
+      type = "pd-ssd"
     }
   }
 
@@ -292,9 +327,10 @@ EOT
 # monitoring instance
 #
 
-# latest monitoring image when terraform runs
-data "google_compute_image" "monitoring_latest" {
-  family  = length(regexall("^t2a.*", var.monitoring_machine_type)) > 0 ? "ztl-monitoring-arm64" : "ztl-monitoring"
+# provided monitoring image by ID
+data "google_compute_image" "monitoring_by_id" {
+  count   = var.monitoring_image_id == "LATEST" ? 0 : 1
+  filter  = "id = \"${var.monitoring_image_id}\""
   project = var.images_project
 }
 
@@ -302,6 +338,13 @@ data "google_compute_image" "monitoring_latest" {
 data "google_compute_image" "monitoring" {
   count   = var.monitoring_image == "LATEST" ? 0 : 1
   name    = var.monitoring_image
+  project = var.images_project
+}
+
+# latest monitoring image when terraform runs
+data "google_compute_image" "monitoring_latest" {
+  count   = var.monitoring_image_id == "LATEST" && var.monitoring_image == "LATEST" ? 1 : 0
+  family  = length(regexall("^t2a.*", var.monitoring_machine_type)) > 0 ? "ztl-monitoring-arm64" : "ztl-monitoring"
   project = var.images_project
 }
 
@@ -343,9 +386,13 @@ resource "google_compute_instance" "monitoring" {
 
   boot_disk {
     initialize_params {
-      image = var.monitoring_image == "LATEST" ? data.google_compute_image.monitoring_latest.self_link : data.google_compute_image.monitoring[0].self_link
-      size  = var.monitoring_instance_disk_size
-      type  = "pd-ssd"
+      image = element(concat(
+        data.google_compute_image.monitoring_by_id[*].self_link,
+        data.google_compute_image.monitoring[*].self_link,
+        data.google_compute_image.monitoring_latest[*].self_link,
+      ), 0)
+      size = var.monitoring_instance_disk_size
+      type = "pd-ssd"
     }
   }
 
