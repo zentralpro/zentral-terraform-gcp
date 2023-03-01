@@ -12,3 +12,8 @@ output "subnetwork_name" {
   value       = google_compute_subnetwork.subnetwork.name
   description = "The subnetwork name"
 }
+
+output "manual_nat_ip_addresses" {
+  value       = google_compute_address.manual_nat.*.address
+  description = "List of the manually managed NAT IP addresses"
+}
