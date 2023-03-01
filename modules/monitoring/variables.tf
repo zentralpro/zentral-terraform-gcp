@@ -18,6 +18,11 @@ variable "oldest_unacked_message_threshold" {
   default     = 3600
 }
 
+variable "message_publication_rate_threshold" {
+  description = "Minimum rate of message publication, in messages/second"
+  default     = 0.1
+}
+
 variable "min_vm_disk_free_space_threshold" {
   description = "Minimum VM disk free space, in %"
   default     = 15

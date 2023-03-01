@@ -346,6 +346,8 @@ module "monitoring" {
   # undelivered_messages_threshold = 5000
   # google pub/sub subscriptions oldest unacked message alarm threshold, in seconds
   # oldest_unacked_message_threshold = 3600
+  # google pub/sub topics minimum message publication rate alarm threshold, in messages per seconds
+  # message_publication_rate_threshold = 0.1
   # google vm disk utilization free space alarm threshold, in %
   # min_vm_disk_free_space_threshold = 15
   # CloudSQL max CPU utilization averaged over 30 min, in %
