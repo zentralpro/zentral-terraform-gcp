@@ -95,6 +95,10 @@ Used by the [google cloud scheduler](https://cloud.google.com/scheduler/docs/qui
 
 ## Deployment
 
+### Manual tasks!!!
+
+Sadly, to enable some APIs on the project, APIs are required! Make sure the *Service Usage API* and *Cloud Resource Manager API* are enabled on the project before attempting a deployment.
+
 ### Permissions / Roles
 
 GCP predefined roles covering the necessary permissions to run the TF setup:
