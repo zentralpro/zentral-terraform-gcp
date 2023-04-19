@@ -25,6 +25,10 @@ resource "google_monitoring_uptime_check_config" "fqdn" {
     matcher = "CONTAINS_STRING"
     content = "OK"
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "google_monitoring_alert_policy" "uptime_check" {
