@@ -101,6 +101,8 @@ Sadly, to enable some APIs on the project, APIs are required! Make sure the *Ser
 
 ### Permissions / Roles
 
+#### In the GCP project
+
 GCP predefined roles covering the necessary permissions to run the TF setup:
 
 |TF Resources|Description|GCP Predefined roles|Ref.|
@@ -124,3 +126,7 @@ GCP predefined roles covering the necessary permissions to run the TF setup:
 |`google_monitoring_alert_policy`||`roles/monitoring.alertPolicyEditor`|
 |`google_monitoring_notification_channel`||`roles/monitoring.notificationChannelEditor`|
 |`google_monitoring_uptime_check_config`||`roles/monitoring.uptimeCheckConfigEditor`|
+
+#### To access the pre-built Zentral images
+
+In order to access the pre-build Zentral images, communicate the list of principals (users, service account) used to run terraform to Zentral Pro Services, and we will grant them access. For more information, see [zentral-images](https://github.com/zentralpro/zentral-images/tree/master/config/gcp) repository.
