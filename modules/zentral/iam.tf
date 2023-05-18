@@ -148,6 +148,38 @@ resource "google_project_iam_binding" "monitoring-viewer" {
   ]
 }
 
+# find the logging.viewAccessor role
+# for the grafana googlecloud logging datasource
+data "google_iam_role" "logging-view-accessor" {
+  name = "roles/logging.viewAccessor"
+}
+
+# assign monitoring.viewer role to the service accounts who need it
+resource "google_project_iam_binding" "logging-view-accessor" {
+  count = var.datadog_api_key == "UNDEFINED" ? 1 : 0
+  role  = data.google_iam_role.logging-view-accessor.id
+
+  members = [
+    "serviceAccount:${google_service_account.monitoring.email}",
+  ]
+}
+
+# find the logging.viewAccessor role
+# for the grafana googlecloud logging datasource
+data "google_iam_role" "logging-viewer" {
+  name = "roles/logging.viewer"
+}
+
+# assign monitoring.viewer role to the service accounts who need it
+resource "google_project_iam_binding" "logging-viewer" {
+  count = var.datadog_api_key == "UNDEFINED" ? 1 : 0
+  role  = data.google_iam_role.logging-viewer.id
+
+  members = [
+    "serviceAccount:${google_service_account.monitoring.email}",
+  ]
+}
+
 # find the cloudsql.client role
 data "google_iam_role" "cloudsql-client" {
   name = "roles/cloudsql.client"
