@@ -40,3 +40,8 @@ variable "nessus_key" {
 #  type = string
 #  sensitive = true
 #}
+
+#variable "zentral_api_token" {
+#  type = string
+#  sensitive = true
+#}

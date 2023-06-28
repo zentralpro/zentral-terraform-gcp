@@ -44,7 +44,7 @@ resource "google_project_service" "service" {
 
 # the zentral VPC
 module "vpc" {
-  source = "git@github.com:zentralpro/zentral-terraform-gcp.git//modules/vpc?ref=v0.2.23"
+  source = "git@github.com:zentralpro/zentral-terraform-gcp.git//modules/vpc?ref=v0.2.39"
 
   depends_on = [
     google_project_service.service
@@ -61,7 +61,7 @@ module "vpc" {
 
 # the main zentral module
 module "zentral" {
-  source = "git@github.com:zentralpro/zentral-terraform-gcp.git//modules/zentral?ref=v0.2.23"
+  source = "git@github.com:zentralpro/zentral-terraform-gcp.git//modules/zentral?ref=v0.2.39"
 
   depends_on = [
     google_project_service.service
@@ -342,7 +342,7 @@ module "zentral" {
 
 # the monitoring module
 module "monitoring" {
-  source = "git@github.com:zentralpro/zentral-terraform-gcp.git//modules/monitoring?ref=v0.2.23"
+  source = "git@github.com:zentralpro/zentral-terraform-gcp.git//modules/monitoring?ref=v0.2.39"
 
   # list of email addresses for the alert notifications
   # email_addresses = []
@@ -365,3 +365,19 @@ module "monitoring" {
   # CloudSQL max memory utilization averaged over 30 min, in %
   # max_cloudsql_memory_utilization_threshold = 80
 }
+
+# Once you have setup a Zentral service account with the required permissions,
+# you can use the scheduled_api_calls module.
+#module "scheduled_api_calls" {
+#  source = "git@github.com:zentralpro/zentral-terraform-gcp.git//modules/scheduled_api_calls?ref=v0.2.39"
+#
+#  fqdn = module.zentral.fqdn
+#
+#  scheduled_api_calls = {
+#    inventory-cleanup = {
+#      path     = "/api/inventory/cleanup/"
+#      token    = var.zentral_api_token
+#      schedule = "44 4 * * *"
+#    }
+#  }
+#}
