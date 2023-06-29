@@ -199,6 +199,10 @@ variable "db_tier" {
   default = "db-custom-1-3840"
 }
 
+variable "db_version" {
+  default = "POSTGRES_15"
+}
+
 variable "monitoring_image" {
   default = "LATEST"
 }

@@ -194,6 +194,7 @@ module "zentral" {
 
   # DB: 1 ⨉ vCPU, 3.75GB (to unlock the 100 connections)
   # db_tier = db-custom-1-3840
+  # db_version = "POSTGRES_15"
 
   # Monitoring (Grafana + Prometheus): 1 ⨉ vCPU, 1GB
   # monitoring_machine_type = "custom-1-1024"

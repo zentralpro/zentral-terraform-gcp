@@ -8,7 +8,7 @@ resource "random_id" "master_db_suffix" {
 
 resource "google_sql_database_instance" "zentral" {
   name             = "ztl-master-${random_id.master_db_suffix.hex}"
-  database_version = "POSTGRES_12"
+  database_version = var.db_version
 
   settings {
     tier = var.db_tier
