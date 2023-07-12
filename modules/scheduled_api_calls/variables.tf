@@ -6,9 +6,10 @@ variable "fqdn" {
 variable "scheduled_api_calls" {
   description = "Scheduled Zentral API calls."
   type = map(object({
-    path     = string
-    token    = string
-    schedule = string
+    path        = string
+    token       = string
+    schedule    = string
+    description = optional(string)
   }))
   default = {}
 }

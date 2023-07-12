@@ -369,16 +369,21 @@ module "monitoring" {
 
 # Once you have setup a Zentral service account with the required permissions,
 # you can use the scheduled_api_calls module.
-#module "scheduled_api_calls" {
-#  source = "git@github.com:zentralpro/zentral-terraform-gcp.git//modules/scheduled_api_calls?ref=v0.2.39"
+# module "scheduled_api_calls" {
+#   source = "git@github.com:zentralpro/zentral-terraform-gcp.git//modules/scheduled_api_calls?ref=v0.2.39"
 #
-#  fqdn = module.zentral.fqdn
+#   fqdn = module.zentral.fqdn
 #
-#  scheduled_api_calls = {
-#    inventory-cleanup = {
-#      path     = "/api/inventory/cleanup/"
-#      token    = var.zentral_api_token
-#      schedule = "44 4 * * *"
-#    }
-#  }
-#}
+#   scheduled_api_calls = {
+#     inventory-cleanup = {
+#       description = trimspace(
+#         <<EOT
+#         Call the Zentral inventory cleanup API to prune the inventory history. See https://docs.zentral.io/en/latest/apps/inventory/#apiinventorycleanup
+#         EOT
+#       )
+#       path     = "/api/inventory/cleanup/"
+#       token    = var.zentral_api_token
+#       schedule = "44 4 * * *"
+#     }
+#   }
+# }

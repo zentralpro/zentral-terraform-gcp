@@ -7,6 +7,7 @@ resource "google_cloud_scheduler_job" "scheduled_api_calls" {
 
   name             = "zentral-${each.key}"
   schedule         = var.scheduled_api_calls[each.key]["schedule"]
+  description      = lookup(var.scheduled_api_calls[each.key], "description", each.key)
   attempt_deadline = "30s"
 
   retry_config {
