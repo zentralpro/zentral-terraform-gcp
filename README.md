@@ -10,56 +10,87 @@ See [example](./example).
 
 Four different Zentral VMs are used (web, workers, monitoring and ek). The images can be provided by Zentral Pro Services, or they can be built by the customers.
 
-The images are generic, and are automatically configured during VM startup using the `ztl_admin setup` command. This command uses the project metadata and the project secrets to finish configuring the instances (email setup, logging, monitoring agent, zentral configuration, systemd services, …).
+#### Base image
 
-On each image, the logs and metrics can be configured to be shipped to datadog using the datadog agent, or to stackdriver and prometheus using the [vector](https://vector.dev) agent.
+The base image for all instances is the latest official Ubuntu server 22.04 LTS with EBS root volume and HVM virtualization. (see `packer/sources.pkr.hcl` in the `zentral-images` repository).
 
-Optionally it is possible to provide a crowdstrike debian package and `cid` to deploy the crowdstrike agent on the instances.
+##### Common configuration
+ * Automatic APT updates
+ * NTP sync / UTC timezone
+ * UFW firewall with deny default policy
+ * Postfix server with SMTP relay
+
+##### `ztl_admin`
+
+The `ztl_admin` tool is pre-installed in all the images. It is used during startup to finish configuring the images (`ztl_admin setup`), using the information present in the project metadata, project secrets, and storage buckets. It is also configured as a cron job (`ztl_admin cron`) to run daily tasks (install the TLS certificates on the web instances, cleanup the web sessions, verify the enrollment of the security agents, …).
+
+##### Ops Agent
+
+The [Google Ops Agent](https://cloud.google.com/stackdriver/docs/solutions/agents/ops-agent) is pre-installed in all the images. It is used to collect telemetry.
+
+##### Vector
+
+The [vector](https://vector.dev/) agent is pre-installed in all the images. It is used to ship some logs to [Google Cloud Logging](https://cloud.google.com/logging?hl=en), and expose some prometheus metrics to the Monitoring instance.
+
+##### Nessus and Xagt
+
+These two optional security agents can be configured by `ztl_admin` at startup. `ztl_admin` can also check daily that these agents are running and properly enrolled, and attempts remediation if necessary.
 
 #### Web instances
 
-Those instances are deployed using the `ztl-web-mig` managed instance group. On each instance, nginx is setup to proxy the requests to gunicorn (python application server) to serve the Zentral web app. Those instances are configured as the targets for the network load balancer.
-Other paths are configured using the [nginx auth request](http://nginx.org/en/docs/http/ngx_http_auth_request_module.html) plugin to give access to Kibana on the ek instance, and Grafana and Prometheus on the monitoring instance, using the Zentral authentication and authorization.
+A regional Google Compute Instance group is configured to run the web instances. Its capacity can be controlled manually using the Google Compute console or API, or using the `web_mig_target_size` Zentral module terraform variable (recommended).This instance group is used as target pool for the Network Load Balancer (NLB, see below). Health checks are configured to only add an instance to the pool when it is ready (at the end of the ztl_admin setup run).
 
-#### Workers instances
+On the web instances, the Zentral Django application is running, using [gunicorn](https://gunicorn.org/) as the application server (`zentral_web_app.service` systemd service). [Nginx](https://nginx.org/) is used for TLS termination behind the NLB (see Cloud function below for more info), and as a reverse proxy for the gunicorn application server. The static files are served directly by Nginx. Nginx is also used to proxy access to [Prometheus](https://prometheus.io/) and [Grafana](https://grafana.com/) on the Monitoring instance, using the [Nginx auth request module](https://nginx.org/en/docs/http/ngx_http_auth_request_module.html). Requests to Prometheus and Grafana are authorized by making a background request to the Zentral application to verify the identity and the permissions of the user.
+Vector is configured to ship the Nginx access and error logs. It also calculates and exports Prometheus metrics based on the Nginx access logs to the Monitoring instance, to be used in Grafana dashboards for example. It is also configured to ship the `zentral_web_app.service` journald logs to Google Cloud Logging.
 
-Those instances are deployed using the `ztl-worker-mig` managed instance group. On each instance, multiple systemd services are configured to enrich, process and ship the events to the configured stores (see [Queues](#Queues) section below).
+#### Worker instances
+
+A regional Google Compute Instance group is configured to run the worker instances. Its capacity can be controlled manually using the Google Compute console or API, or using the `worker_mig_target_size` Zentral module terraform variable (recommended).
+
+On the worker instances, the Zentral web app is deployed, and different Zentral workers are configured, each one with its corresponding systemd service:
+
+* `zentral_prepocess_worker`
+* `zentral_enrich_worker`
+* `zentral_store_worker_*`
+* `zentral_process_worker`
+* `zentral_celery`
+
+The preprocess, enrich, store and process workers are responsible for running the Zentral event pipeline (see Pub/Sub section below). They also expose Prometheus metrics scraped by the Prometheus server of the Monitoring instance. There are as many store workers as configured event stores. For example, if a Splunk event store is configured, there will be a `zentral_store_worker_splunk.service`). The celery worker is used for the Zentral background tasks (file exports, …).
+
+Vector is configured to ship the journald logs of those services to Google Cloud Logging.
 
 #### Monitoring instance
+The monitoring instance is a singleton. It is not managed by an instance group. Prometheus and Grafana are running on this instance. These two services are proxied by Nginx on the web instances.
 
-The monitoring instance is used to run Grafana and Prometheus. Prometheus is setup using GCP service discovery to scrape the prometheus metrics exposed by the web and worker instances. Grafana is configured with the prometheus and elasticsearch data sources. It can be used for example to fusion the prometheus metrics with the zentral events in custom dashboards.
+Prometheus is configured to scrape the Zentral application metrics, the nginx metrics exposed by vector on the web instances, and the Zentral worker metrics on the worker instances.
 
-Two persistent volumes are attached to this instance, one for the grafana configuration and database, one for the prometheus database. This way, the monitoring instance can be upgraded (using a newer image) without loosing the data.
+Grafana is used to build dashboards. It has access to the Google project metrics, and to the Prometheus data. It can also be configured to have access to the event stores.
+
+Two separate block storage devices are used to persist the Grafana and Prometheus data. When a new monitoring instance image is deployed, those volumes are reattached to the new instance during the `ztl_admin setup` run.
 
 #### EK instance
 
-This instance is used to run a single Elasticsearch + Kibana instance to store the Zentral events.
+This optional instance can be used to run a single [Elasticsearch](https://www.elastic.co/elasticsearch/) + [Kibana](https://www.elastic.co/kibana/) instance to store the Zentral events.
 
-### Networking
+#### Image preparation and distribution
 
-A custom VPC is used with two subnets on 2 different zones. Firewall rules are configured to filter the connections to the different instances.
+Images are prepared and distributed by Zentral Pro Services, or they can be built by the customers using another Zentral project (`zentral-images`). Images are referenced in the Zentral Terraform module. Access to the images, and to the `ztl_admin` and `zentral-images` source code (ansible and packer configuration) repositories is given if a subscription or support contract currently exists. The `ztl_admin` and `zentral-images` repositories can be used to build a custom CI/CD pipeline to deploy custom Zentral images.
 
-The instances do not have public IP addresses. A NAT router is used to give them access to the Internet. The IP addresses used by this router can optionaly be managed by Terraform. If not, they are automatically managed by GCP. These addresses are the ones used for example by the Splunk store worker to connect to the Splunk HEC.
-
-A network load balancer is used to balance the traffic coming from the end users and the endpoints to the Zentral web instances, so that nginx could be configured to verify the client certificates (mTLS). The HTTP load balancer available in GCP doesn't provide this functionality (last checked: 2021-09-10).
-
-The TLS certificates and the key can be loaded by Terraform from local files or environment variables, or generated by a cloud function. In both cases, the certificate and the chain are stored in the project metadata. The key is stored as a google secret. Once per day, the `ztl_admin cron` command will fetch the certificate, the chain, and the key, and update the local configurations (nginx and zentral) on the web instances. The cloud function is a python runtime that uses the certbot module to request Let's Encrypt certificates using the ACME protocol, with the [DNS challenge](https://letsencrypt.org/docs/challenge-types/#dns-01-challenge). Only Cloudflare is supported (last checked: 2021-09-10), and credentials with permissions to edit the DNS zone need to be provided.
-
-Some options are available in the zentral terraform module to forward the origin IP address if Cloudflare is used as proxy.
+In order to access the pre-build Zentral images, communicate the list of principals (users, service account) used to run terraform to Zentral Pro Services, and we will grant them access. For more information, see [zentral-images](https://github.com/zentralpro/zentral-images/tree/master/config/gcp) repository.
 
 ### Storage
 
 #### CloudSQL
 
-[Cloud SQL for PostgreSQL](https://cloud.google.com/sql/docs/postgres/quickstart) is used as the main application database for Zentral. Automatic backups can be configured. The credentials are generated during the terraform setup and made available to the application via the project metadata and secrets.
+[Cloud SQL for PostgreSQL](https://cloud.google.com/sql/docs/postgres/quickstart) is used as the main application database for Zentral. [Automatic backups](https://cloud.google.com/sql/docs/postgres/backup-recovery/backups#:~:text=Automated%20backups%20are%20taken%20daily,point%2Din%2Dtime%20recovery.) are configured, with custom data retention. The data stored in the database, the temporary files, and the backups are [encrypted at rest](https://cloud.google.com/docs/security/encryption/default-encryption). The credentials are generated during the Terraform setup and made available to the application via the project metadata (login) and secrets (password).
 
 #### Cloud Storage
 
 Multiple regional buckets are used for this deployment:
 
  * `ztl-zentral-PROJECT_NAME` is used to store the files generated by the Zentral application (exports, …)
- * `ztl-elastic-PROJECT_NAME` is used to backup the Elasticsearch indices.
- * `ztl-dist-PROJECT_NAME` is a regional bucket used to distribute extra software during the VM setup (Crowdstrike debian package, …).
+ * `ztl-elastic-PROJECT_NAME` is used to backup the Elasticsearch indices when the EK instance is selected.
+ * `ztl-dist-PROJECT_NAME` is an optional regional bucket used to distribute extra software during the VM setup (Crowdstrike debian package, …).
 
 It is also recommended to setup a bucket to use as [terraform backend](https://www.terraform.io/docs/language/settings/backends/gcs.html).
 
@@ -92,6 +123,167 @@ All Zentral events are posted to this topic, with the extra information they rec
 #### `ztl-certbot`
 
 Used by the [google cloud scheduler](https://cloud.google.com/scheduler/docs/quickstart) to trigger the certbot cloud function. Only created if the certbot cloud function is activated.
+
+### Networking
+
+#### General overview
+
+A custom VPC is used with two subnets on 2 different zones. Firewall rules are configured to filter the connections to the different instances based on their network tags. We benefit from the [default authentication and encryption](https://cloud.google.com/docs/security/encryption-in-transit#virtual_machine_to_virtual_machine) of communication between VMs on a GCP VPC.
+
+The instances do not have public IP addresses. A NAT router is used to give them access to the Internet. The IP addresses used by this router can optionaly be managed by Terraform. If not, they are automatically managed by GCP. These addresses are the ones used for example by the Splunk store worker to connect to the Splunk HEC.
+
+A network load balancer is used to balance the traffic coming from the end users and the endpoints to the Zentral web instances, so that Nginx could be configured to verify the client certificates (mTLS). The [custom headers](https://cloud.google.com/load-balancing/docs/https/custom-headers#mtls-variables) that the managed Google mTLS application load balancer can provide might be enough to authenticate Santa, but not to authenticate the MDM daemon and agent at the moment (last checked: 2023-11-02, #TODO).
+
+The TLS certificates and the key can be loaded by Terraform from local files or environment variables, or generated by a cloud function. In both cases, the certificate and the chain are stored in the project metadata. The key is stored as a google secret. Once per day, the `ztl_admin cron` command will fetch the certificate, the chain, and the key, and update the local configurations (Nginx and Zentral) on the web instances. The cloud function is a python runtime that uses the certbot module to request Let's Encrypt certificates using the ACME protocol, with the [DNS challenge](https://letsencrypt.org/docs/challenge-types/#dns-01-challenge). Google Cloud DNS and Cloudflare are supported by the cloud function. Credentials with permissions to edit the DNS zone need to be provided for Cloudflare.
+
+Options are available in the zentral terraform module to forward the origin IP address if Cloudflare is used as proxy.
+
+#### Connections
+
+##### Web instances
+
+**[OUTBOUND]** Google cloud - Cloud SQL
+
+mTLS authentication using the [Cloud SQL auth proxy](https://cloud.google.com/sql/docs/postgres/connect-auth-proxy), and instance IAM authentication. The Zentral application communicates locally with the proxy.
+
+**[OUTBOUND]** Google cloud - Memory Store
+
+Using a [private service access](https://cloud.google.com/memorystore/docs/redis/networking#private_services_access) to authorize only our VPC to communicate with the Redis instance.
+
+**[OUTBOUND]** Google cloud - Project metadata, secrets, logging, buckets, Pub/Sub
+
+API calls using HTTPS (443) endpoints, and instance IAM authentication.
+
+**[OUTBOUND]** **[OPTIONAL]** Zentral EK instance
+
+API calls in the VPC, HTTP (9200) endpoints.
+
+**[OUTBOUND]** **[OPTIONAL]** third party - Splunk
+
+Splunk API endpoint authenticated using an API token and optional extra headers, over HTTPS.
+
+**[OUTBOUND]** Official Ubuntu repositories
+
+To receive the OS updates, HTTPS (443)
+
+**[OUTBOUND]** GitHub
+
+To get the latest version of the agents, HTTPS (443).
+
+**[INBOUND]** Google cloud - Managed instance group
+
+HTTP (8081) health check on the `/instance-health-check` Nginx endpoint
+
+**[INBOUND]** Google cloud - Network load balancer
+
+HTTP (8080) health check on the `/app-health-check` Nginx endpoint, no authentication, port and ip source range limited using the VPC firewall.
+
+HTTP (80) and HTTPS (443) connections from the internet, via the NLB, to Nginx.
+
+**[INBOUND]** Zentral monitoring instance - Prometheus
+
+HTTP (9920) vector `/metrics` scraping by Prometheus using the internal VPC. No authentication, port and source network tag (`monitoring`) limited using the VPC firewall.
+
+##### Worker instances
+
+**[OUTBOUND]** Google cloud - Cloud SQL
+
+mTLS authentication using the [Cloud SQL auth proxy](https://cloud.google.com/sql/docs/postgres/connect-auth-proxy), and instance IAM authentication. The Zentral application communicates locally with the proxy.
+
+**[OUTBOUND]** Google cloud - Memory Store
+
+Using a [private service access](https://cloud.google.com/memorystore/docs/redis/networking#private_services_access) to authorize only our VPC to communicate with the Redis instance.
+
+**[OUTBOUND]** Google cloud - Project metadata, secrets, logging, buckets, Pub/Sub
+
+API calls using HTTPS (443) endpoints, and instance IAM authentication.
+
+**[OUTBOUND]** **[OPTIONAL]** Zentral EK instance
+
+API calls in the VPC, HTTP (9200) endpoints.
+
+**[OUTBOUND]** **[OPTIONAL]** third party - Splunk
+
+Splunk API endpoint authenticated using an API token and optional extra headers, over HTTPS.
+
+**[OUTBOUND]** Official Ubuntu repositories
+
+To receive the OS updates, HTTPS (443)
+
+**[INBOUND]** Google cloud - Managed instance group
+
+HTTP (9910) health check on the `/metrics` vector endpoint.
+
+
+**[INBOUND]** Zentral monitoring instance - Prometheus
+
+HTTP (9910) vector `/metrics` scraping by Prometheus using the internal VPC. No authentication, port and source network tag (`monitoring`) limited using the VPC firewall.
+
+##### Monitoring instance
+
+**[OUTBOUND]** Google cloud - Project metadata, secrets, logging, buckets, Pub/Sub
+
+API calls using HTTPS (443) endpoints, and instance IAM authentication.
+
+**[OUTBOUND]** **[OPTIONAL]** Zentral EK instance
+
+API calls in the VPC, HTTP (9200) endpoints.
+
+**[OUTBOUND]** **[OPTIONAL]** third party - Splunk
+
+Splunk API endpoint authenticated using an API token and optional extra headers, over HTTPS.
+
+**[OUTBOUND]** Official Ubuntu repositories
+
+To receive the OS updates, HTTPS (443)
+
+##### EK instance
+
+**[OUTBOUND]** Google cloud - Project metadata, secrets, logging, buckets, Pub/Sub
+
+API calls using HTTPS (443) endpoints, and instance IAM authentication.
+
+**[OUTBOUND]** Official Ubuntu repositories
+
+To receive the OS updates, HTTPS (443)
+
+**[INBOUND]** **[OPTIONAL]** Zentral web & worker instances
+
+API calls in the VPC, HTTP (9200) endpoints. No authentication, port and source network tag (`web`, `worker`) limited using the VPC firewall.
+
+## Data lifecycle
+
+### Collection
+
+Agents running on the macOS clients are collecting the information and sending it via API calls to Zentral. Inventory information can also come from third party inventory systems like Jamf. Events are normalized, and metadata about the source is added (IP address, Geo Localization, User agent).
+
+#### Agents
+
+##### Osquery
+
+[Osquery](https://osquery.io/) uses basic SQL commands to leverage a relational data-model to describe a device. Osquery is a multi-platform tool. [Tables](https://osquery.io/schema/5.10.2/) exist for most of OS resources. The query results are pushed to Zentral using HTTPS API calls. The configuration for Osquery is downloaded from Zentral using HTTPS API calls. All API calls are logged using the Zentral event pipeline.
+
+##### Santa
+
+[Santa](https://santa.dev/) is a binary and file access authorization system for macOS. It consists of a system extension that allows or denies attempted executions using a set of rules stored in a local database. Decision events (Decision, Machine serial number, `PID`, `PPID`, `UID`, `GID`, path, arguments, code signature) are sent to Zentral using HTTPS API calls. Rule updates are downloaded from Zentral using HTTPS API calls. All API calls are logged using the Zentral event pipeline.
+
+### Processing
+
+Events are first processed by the Zentral `web` VMs. Updates to the status of the machines are written in the CloudSQL database. Events are then written to the Google Cloud Pub/Sub queues, and processed by the `worker` VMs. Events in Google Cloud Pub/Sub are [encrypted at rest and in transit](https://cloud.google.com/pubsub/docs/encryption).
+
+### Storage
+
+#### Configuration
+
+The configuration data for Zentral itself and the agents or third party inventory is stored in the Cloud SQL database. Audit events are generated when configuration objects are created, modified and deleted, with the unified metadata (User information, IP, authentication) and the previous state if relevant.
+
+#### Hardware and software inventory
+
+The inventory data (software, hardware) is stored in the Cloud SQL database. Change events are generated too.
+
+#### Events
+
+The events are shipped to the configured event stores, by the store processes on the `worker` VMs. If the EK instance is configured to store the events in this deployment, indices lifecycles and backups are managed using the Terraform variables. Data in the EK instance is encrypted at rest, and the backups are stored in the backup bucket, also encrypted at rest. Data retention, encryption and backup in third party stores (Splunk for example) is out-of-scope for this document.
 
 ## Deployment
 
@@ -126,7 +318,3 @@ GCP predefined roles covering the necessary permissions to run the TF setup:
 |`google_monitoring_alert_policy`| |`roles/monitoring.alertPolicyEditor`| |
 |`google_monitoring_notification_channel`| |`roles/monitoring.notificationChannelEditor`| |
 |`google_monitoring_uptime_check_config`| |`roles/monitoring.uptimeCheckConfigEditor`| |
-
-#### To access the pre-built Zentral images
-
-In order to access the pre-build Zentral images, communicate the list of principals (users, service account) used to run terraform to Zentral Pro Services, and we will grant them access. For more information, see [zentral-images](https://github.com/zentralpro/zentral-images/tree/master/config/gcp) repository.
