@@ -82,7 +82,7 @@ In order to access the pre-build Zentral images, communicate the list of princip
 
 #### CloudSQL
 
-[Cloud SQL for PostgreSQL](https://cloud.google.com/sql/docs/postgres/quickstart) is used as the main application database for Zentral. Automatic backups can be configured. The credentials are generated during the terraform setup and made available to the application via the project metadata and secrets.
+[Cloud SQL for PostgreSQL](https://cloud.google.com/sql/docs/postgres/quickstart) is used as the main application database for Zentral. [Automatic backups](https://cloud.google.com/sql/docs/postgres/backup-recovery/backups#:~:text=Automated%20backups%20are%20taken%20daily,point%2Din%2Dtime%20recovery.) are configured, with custom data retention. The data stored in the database, the temporary files, and the backups are [encrypted at rest](https://cloud.google.com/docs/security/encryption/default-encryption). The credentials are generated during the Terraform setup and made available to the application via the project metadata (login) and secrets (password).
 
 #### Cloud Storage
 
@@ -128,7 +128,7 @@ Used by the [google cloud scheduler](https://cloud.google.com/scheduler/docs/qui
 
 #### General overview
 
-A custom VPC is used with two subnets on 2 different zones. Firewall rules are configured to filter the connections to the different instances based on their network tags.
+A custom VPC is used with two subnets on 2 different zones. Firewall rules are configured to filter the connections to the different instances based on their network tags. We benefit from the [default authentication and encryption](https://cloud.google.com/docs/security/encryption-in-transit#virtual_machine_to_virtual_machine) of communication between VMs on a GCP VPC.
 
 The instances do not have public IP addresses. A NAT router is used to give them access to the Internet. The IP addresses used by this router can optionaly be managed by Terraform. If not, they are automatically managed by GCP. These addresses are the ones used for example by the Splunk store worker to connect to the Splunk HEC.
 
@@ -186,57 +186,104 @@ HTTP (9920) vector `/metrics` scraping by Prometheus using the internal VPC. No 
 
 ##### Worker instances
 
-→ Cloud SQL
+**[OUTBOUND]** Google cloud - Cloud SQL
 
 mTLS authentication using the [Cloud SQL auth proxy](https://cloud.google.com/sql/docs/postgres/connect-auth-proxy), and instance IAM authentication. The Zentral application communicates locally with the proxy.
 
-→ Memory Store
+**[OUTBOUND]** Google cloud - Memory Store
 
 Using a [private service access](https://cloud.google.com/memorystore/docs/redis/networking#private_services_access) to authorize only our VPC to communicate with the Redis instance.
 
-→ Google cloud project, secrets, logging, buckets, Pub/Sub
+**[OUTBOUND]** Google cloud - Project metadata, secrets, logging, buckets, Pub/Sub
 
-API calls using HTTPS endpoints, and instance IAM authentication.
- 
-→ Official Ubuntu repositories, HTTPS (443)
+API calls using HTTPS (443) endpoints, and instance IAM authentication.
 
-To receive the OS updates.
+**[OUTBOUND]** **[OPTIONAL]** Zentral EK instance
 
-← Managed Instance Group
+API calls in the VPC, HTTP (9200) endpoints.
+
+**[OUTBOUND]** **[OPTIONAL]** third party - Splunk
+
+Splunk API endpoint authenticated using an API token and optional extra headers, over HTTPS.
+
+**[OUTBOUND]** Official Ubuntu repositories
+
+To receive the OS updates, HTTPS (443)
+
+**[INBOUND]** Google cloud - Managed instance group
 
 HTTP (9910) health check on the `/metrics` vector endpoint.
 
-← Monitoring instance
+
+**[INBOUND]** Zentral monitoring instance - Prometheus
 
 HTTP (9910) vector `/metrics` scraping by Prometheus using the internal VPC. No authentication, port and source network tag (`monitoring`) limited using the VPC firewall.
 
 ##### Monitoring instance
 
-→ Google cloud project, secrets, logging, buckets
+**[OUTBOUND]** Google cloud - Project metadata, secrets, logging, buckets, Pub/Sub
 
 API calls using HTTPS (443) endpoints, and instance IAM authentication.
 
-→ optional EK VM
+**[OUTBOUND]** **[OPTIONAL]** Zentral EK instance
 
-API calls in the VPC, using HTTP (9200) endpoints.
+API calls in the VPC, HTTP (9200) endpoints.
 
-→ optional external Splunk event store
+**[OUTBOUND]** **[OPTIONAL]** third party - Splunk
 
- - Splunk API endpoint authenticated using an API token and optional extra headers, over HTTPS.
+Splunk API endpoint authenticated using an API token and optional extra headers, over HTTPS.
 
-→ Official Ubuntu repositories, HTTPS (443)
+**[OUTBOUND]** Official Ubuntu repositories
 
-To receive the OS updates.
+To receive the OS updates, HTTPS (443)
 
 ##### EK instance
 
-→ Google cloud project, secrets, logging, buckets
+**[OUTBOUND]** Google cloud - Project metadata, secrets, logging, buckets, Pub/Sub
 
-API calls using HTTPS endpoints, and instance IAM authentication.
+API calls using HTTPS (443) endpoints, and instance IAM authentication.
 
-→ Official Ubuntu repositories, HTTPS
+**[OUTBOUND]** Official Ubuntu repositories
 
-To receive the OS updates.
+To receive the OS updates, HTTPS (443)
+
+**[INBOUND]** **[OPTIONAL]** Zentral web & worker instances
+
+API calls in the VPC, HTTP (9200) endpoints. No authentication, port and source network tag (`web`, `worker`) limited using the VPC firewall.
+
+## Data lifecycle
+
+### Collection
+
+Agents running on the macOS clients are collecting the information and sending it via API calls to Zentral. Inventory information can also come from third party inventory systems like Jamf. Events are normalized, and metadata about the source is added (IP address, Geo Localization, User agent).
+
+#### Agents
+
+##### Osquery
+
+[Osquery](https://osquery.io/) uses basic SQL commands to leverage a relational data-model to describe a device. Osquery is a multi-platform tool. [Tables](https://osquery.io/schema/5.10.2/) exist for most of OS resources. The query results are pushed to Zentral using HTTPS API calls. The configuration for Osquery is downloaded from Zentral using HTTPS API calls. All API calls are logged using the Zentral event pipeline.
+
+##### Santa
+
+[Santa](https://santa.dev/) is a binary and file access authorization system for macOS. It consists of a system extension that allows or denies attempted executions using a set of rules stored in a local database. Decision events (Decision, Machine serial number, `PID`, `PPID`, `UID`, `GID`, path, arguments, code signature) are sent to Zentral using HTTPS API calls. Rule updates are downloaded from Zentral using HTTPS API calls. All API calls are logged using the Zentral event pipeline.
+
+### Processing
+
+Events are first processed by the Zentral `web` VMs. Updates to the status of the machines are written in the CloudSQL database. Events are then written to the Google Cloud Pub/Sub queues, and processed by the `worker` VMs. Events in Google Cloud Pub/Sub are [encrypted at rest and in transit](https://cloud.google.com/pubsub/docs/encryption).
+
+### Storage
+
+#### Configuration
+
+The configuration data for Zentral itself and the agents or third party inventory is stored in the Cloud SQL database. Audit events are generated when configuration objects are created, modified and deleted, with the unified metadata (User information, IP, authentication) and the previous state if relevant.
+
+#### Hardware and software inventory
+
+The inventory data (software, hardware) is stored in the Cloud SQL database. Change events are generated too.
+
+#### Events
+
+The events are shipped to the configured event stores, by the store processes on the `worker` VMs. If the EK instance is configured to store the events in this deployment, indices lifecycles and backups are managed using the Terraform variables. Data in the EK instance is encrypted at rest, and the backups are stored in the backup bucket, also encrypted at rest. Data retention, encryption and backup in third party stores (Splunk for example) is out-of-scope for this document.
 
 ## Deployment
 
