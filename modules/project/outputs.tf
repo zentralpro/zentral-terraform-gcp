@@ -12,3 +12,7 @@ output "number" {
   value       = google_project.this.number
   description = "The project number"
 }
+
+output "terraform_service_account_email" {
+  value = google_service_account.terraform.email
+}
