@@ -20,11 +20,24 @@ resource "google_service_account_key" "ek" {
 # SA for monitoring instance
 #
 
-# service account for the ek instances
+# service account for the monitoring instances
 resource "google_service_account" "monitoring" {
   account_id   = "ztl-monitoring-service-account"
   display_name = "Zentral monitoring service account"
   description  = "Service account for the zentral monitoring instance"
+}
+
+#
+# SA for Vault instance
+#
+
+# service account for the Vault instances
+resource "google_service_account" "vault" {
+  count = var.vault_instance_count > 0 ? 1 : 0
+
+  account_id   = "ztl-vault-service-account"
+  display_name = "Zentral Vault service account"
+  description  = "Service account for the zentral Vault instance"
 }
 
 #
@@ -50,7 +63,7 @@ resource "google_service_account" "worker" {
 }
 
 #
-# Role for service discovery with bindings to ek, monitoring, web, work SAs
+# Role for service discovery with bindings to ek, monitoring, vault, web, work SAs
 #
 
 # role with limited permissions for service discovery in the project
@@ -73,6 +86,7 @@ resource "google_project_iam_binding" "project" {
   members = compact([
     var.ek_instance_count > 0 ? "serviceAccount:${google_service_account.ek[0].email}" : "",
     "serviceAccount:${google_service_account.monitoring.email}",
+    var.vault_instance_count > 0 ? "serviceAccount:${google_service_account.vault[0].email}" : "",
     "serviceAccount:${google_service_account.web.email}",
     "serviceAccount:${google_service_account.worker.email}"
   ])
@@ -110,6 +124,7 @@ resource "google_project_iam_binding" "logging" {
   members = compact([
     var.ek_instance_count > 0 ? "serviceAccount:${google_service_account.ek[0].email}" : "",
     "serviceAccount:${google_service_account.monitoring.email}",
+    var.vault_instance_count > 0 ? "serviceAccount:${google_service_account.vault[0].email}" : "",
     "serviceAccount:${google_service_account.web.email}",
     "serviceAccount:${google_service_account.worker.email}"
   ])
@@ -128,6 +143,7 @@ resource "google_project_iam_binding" "monitoring" {
   members = compact([
     var.ek_instance_count > 0 ? "serviceAccount:${google_service_account.ek[0].email}" : "",
     "serviceAccount:${google_service_account.monitoring.email}",
+    var.vault_instance_count > 0 ? "serviceAccount:${google_service_account.vault[0].email}" : "",
     "serviceAccount:${google_service_account.web.email}",
     "serviceAccount:${google_service_account.worker.email}"
   ])
@@ -192,5 +208,27 @@ resource "google_project_iam_binding" "cloudsql-client" {
   members = [
     "serviceAccount:${google_service_account.web.email}",
     "serviceAccount:${google_service_account.worker.email}"
+  ]
+}
+
+# role with limited permissions for the GCE Vault authentication
+resource "google_project_iam_custom_role" "vault-gce-auth" {
+  count = var.vault_instance_count > 0 ? 1 : 0
+
+  role_id = "ztlVaultGCEAuth"
+  title   = "Zentral role to allow the Vault instance to verify GCE auth"
+  permissions = [
+    "compute.instances.get",
+    "iam.serviceAccounts.get",
+  ]
+}
+
+# bind the role to the vault instance service account
+resource "google_project_iam_binding" "vault-gce-auth" {
+  count = var.vault_instance_count > 0 ? 1 : 0
+
+  role = google_project_iam_custom_role.vault-gce-auth[0].id
+  members = [
+    "serviceAccount:${google_service_account.vault[0].email}"
   ]
 }

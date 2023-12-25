@@ -152,3 +152,19 @@ resource "google_compute_firewall" "allow-monitoring-proxying" {
   source_tags = ["web"]
   target_tags = ["monitoring"]
 }
+
+# allow connections from the web instances to the vault instances
+resource "google_compute_firewall" "allow-web-vault" {
+  name        = "allow-web-vault"
+  description = "Allow 8200 from 'web' to 'vault'"
+
+  network = google_compute_network.zentral.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["8200"]
+  }
+
+  source_tags = ["web"]
+  target_tags = ["vault"]
+}

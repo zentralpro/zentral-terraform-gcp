@@ -428,3 +428,96 @@ EOT
     ]
   }
 }
+
+#
+# vault instance
+#
+
+# provided vault image by ID
+data "google_compute_image" "vault_by_id" {
+  count   = var.vault_image_id == "LATEST" ? 0 : 1
+  filter  = "id = \"${var.vault_image_id}\""
+  project = var.images_project
+}
+
+# provided vault image
+data "google_compute_image" "vault" {
+  count   = var.vault_image == "LATEST" ? 0 : 1
+  name    = var.vault_image
+  project = var.images_project
+}
+
+# latest vault image when terraform runs
+data "google_compute_image" "vault_latest" {
+  count   = var.vault_image_id == "LATEST" && var.vault_image == "LATEST" ? 1 : 0
+  family  = length(regexall("^t2a.*", var.vault_machine_type)) > 0 ? "ztl-vault-arm64" : "ztl-vault"
+  project = var.images_project
+}
+
+# vault instance data disk {
+resource "google_compute_disk" "vault" {
+  count = var.vault_instance_count > 0 ? 1 : 0
+  name  = "ztl-vault-data"
+  size  = 10
+  type  = "pd-ssd"
+}
+
+# vault instance reserved internal address
+resource "google_compute_address" "vault" {
+  count        = var.vault_instance_count > 0 ? 1 : 0
+  name         = "ztl-vault"
+  subnetwork   = var.subnetwork_name
+  address_type = "INTERNAL"
+  purpose      = "GCE_ENDPOINT"
+}
+
+# vault instance
+resource "google_compute_instance" "vault" {
+  count                     = var.vault_instance_count > 0 ? 1 : 0
+  name                      = "ztl-vault"
+  machine_type              = var.vault_machine_type
+  allow_stopping_for_update = true
+  tags                      = ["vault", "ssh"]
+  labels = {
+    ztl-sa-short-name = "vault"
+  }
+
+  boot_disk {
+    initialize_params {
+      image = element(concat(
+        data.google_compute_image.vault_by_id[*].self_link,
+        data.google_compute_image.vault[*].self_link,
+        data.google_compute_image.vault_latest[*].self_link,
+      ), 0)
+      size = var.vault_instance_disk_size
+      type = "pd-ssd"
+    }
+  }
+
+  attached_disk {
+    source      = google_compute_disk.vault[0].self_link
+    device_name = "vault"
+  }
+
+  network_interface {
+    subnetwork = var.subnetwork_name
+    network_ip = google_compute_address.vault[0].address
+  }
+
+  service_account {
+    email  = google_service_account.vault[0].email
+    scopes = ["cloud-platform"]
+  }
+
+  metadata_startup_script = <<EOT
+#!/bin/bash
+systemctl start google-guest-agent
+ztl_admin --no-ts setup
+EOT
+
+  lifecycle {
+    ignore_changes = [
+      metadata_startup_script,
+    ]
+  }
+}

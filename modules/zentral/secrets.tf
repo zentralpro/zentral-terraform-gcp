@@ -301,6 +301,14 @@ resource "google_secret_manager_secret_iam_member" "datadog_api_key_monitoring" 
   member    = "serviceAccount:${google_service_account.monitoring.email}"
 }
 
+# datadog_api_key read access for vault service accounts
+resource "google_secret_manager_secret_iam_member" "datadog_api_key_vault" {
+  count     = var.vault_instance_count > 0 ? 1 : 0
+  secret_id = google_secret_manager_secret.datadog_api_key.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.vault[0].email}"
+}
+
 # datadog_api_key read access for web service accounts
 resource "google_secret_manager_secret_iam_member" "datadog_api_key_web" {
   secret_id = google_secret_manager_secret.datadog_api_key.secret_id
@@ -458,6 +466,14 @@ resource "google_secret_manager_secret_iam_member" "smtp_relay_password_monitori
   member    = "serviceAccount:${google_service_account.monitoring.email}"
 }
 
+# smtp_relay_password read access for vault service accounts
+resource "google_secret_manager_secret_iam_member" "smtp_relay_password_vault" {
+  count     = var.vault_instance_count > 0 ? 1 : 0
+  secret_id = google_secret_manager_secret.smtp_relay_password.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.vault[0].email}"
+}
+
 # smtp_relay_password read access for web service accounts
 resource "google_secret_manager_secret_iam_member" "smtp_relay_password_web" {
   secret_id = google_secret_manager_secret.smtp_relay_password.secret_id
@@ -510,6 +526,14 @@ resource "google_secret_manager_secret_iam_member" "crowdstrike_cid_monitoring" 
   member    = "serviceAccount:${google_service_account.monitoring.email}"
 }
 
+# crowdstrike_cid read access for vault service accounts
+resource "google_secret_manager_secret_iam_member" "crowdstrike_cid_vault" {
+  count     = var.vault_instance_count > 0 ? 1 : 0
+  secret_id = google_secret_manager_secret.crowdstrike_cid.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.vault[0].email}"
+}
+
 # crowdstrike_cid read access for web service accounts
 resource "google_secret_manager_secret_iam_member" "crowdstrike_cid_web" {
   secret_id = google_secret_manager_secret.crowdstrike_cid.secret_id
@@ -560,6 +584,14 @@ resource "google_secret_manager_secret_iam_member" "nessus_key_monitoring" {
   secret_id = google_secret_manager_secret.nessus_key.secret_id
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:${google_service_account.monitoring.email}"
+}
+
+# nessus_key read access for vault service accounts
+resource "google_secret_manager_secret_iam_member" "nessus_key_vault" {
+  count     = var.vault_instance_count > 0 ? 1 : 0
+  secret_id = google_secret_manager_secret.nessus_key.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.vault[0].email}"
 }
 
 # nessus_key read access for web service accounts

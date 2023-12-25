@@ -101,7 +101,14 @@ variable "geolite2_license_key" {
 }
 
 variable "base_json" {
-  type = string
+  description = "The base.json skeleton"
+  type        = string
+}
+
+variable "ident_gateway_config_json" {
+  description = "Configuration for the IDent Gateway"
+  type        = string
+  default     = "UNDEFINED"
 }
 
 # datadog configuration
@@ -216,6 +223,30 @@ variable "monitoring_machine_type" {
 }
 
 variable "monitoring_instance_disk_size" {
+  default = 20
+}
+
+variable "vault_instance_count" {
+  default = 0
+  validation {
+    condition     = var.vault_instance_count >= 0 && var.vault_instance_count <= 1
+    error_message = "The number of ek instances must be 0 or 1."
+  }
+}
+
+variable "vault_image" {
+  default = "LATEST"
+}
+
+variable "vault_image_id" {
+  default = "LATEST"
+}
+
+variable "vault_machine_type" {
+  default = "t2d-standard-1"
+}
+
+variable "vault_instance_disk_size" {
   default = 20
 }
 
