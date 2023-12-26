@@ -289,7 +289,7 @@ resource "google_compute_instance" "ek1" {
         data.google_compute_image.ek[*].self_link,
         data.google_compute_image.ek_latest[*].self_link,
       ), 0)
-      size = 10
+      size = var.ek_instance_disk_size
       type = "pd-ssd"
     }
   }
