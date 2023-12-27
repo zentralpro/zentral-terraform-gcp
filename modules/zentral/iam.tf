@@ -211,23 +211,25 @@ resource "google_project_iam_binding" "cloudsql-client" {
   ]
 }
 
-# role with limited permissions for the GCE Vault authentication
-resource "google_project_iam_custom_role" "vault-gce-auth" {
+# role with limited permissions for the GCE Vault authentication and the project metadata updates (CA chains)
+resource "google_project_iam_custom_role" "vault" {
   count = var.vault_instance_count > 0 ? 1 : 0
 
-  role_id = "ztlVaultGCEAuth"
+  role_id = "ztlVault"
   title   = "Zentral role to allow the Vault instance to verify GCE auth"
   permissions = [
-    "compute.instances.get",
-    "iam.serviceAccounts.get",
+    "compute.instances.get",                      # For the GCE auth
+    "iam.serviceAccounts.get",                    # For the GCE auth
+    "compute.projects.get",                       # For ztl_admin / vault
+    "compute.projects.setCommonInstanceMetadata", # For ztl_admin / vault
   ]
 }
 
 # bind the role to the vault instance service account
-resource "google_project_iam_binding" "vault-gce-auth" {
+resource "google_project_iam_binding" "vault" {
   count = var.vault_instance_count > 0 ? 1 : 0
 
-  role = google_project_iam_custom_role.vault-gce-auth[0].id
+  role = google_project_iam_custom_role.vault[0].id
   members = [
     "serviceAccount:${google_service_account.vault[0].email}"
   ]
