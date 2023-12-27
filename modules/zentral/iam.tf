@@ -220,8 +220,10 @@ resource "google_project_iam_custom_role" "vault" {
   permissions = [
     "compute.instances.get",                      # For the GCE auth
     "iam.serviceAccounts.get",                    # For the GCE auth
-    "compute.projects.get",                       # For ztl_admin / vault
-    "compute.projects.setCommonInstanceMetadata", # For ztl_admin / vault
+    "compute.projects.get",                       # For ztl_admin / vault / auto_cachain
+    "compute.projects.setCommonInstanceMetadata", # For ztl_admin / vault / auto_cachain
+    "iam.serviceAccounts.actAs",                  # For ztl_admin / vault / auto_cachain
+    "compute.globalOperations.get",               # For ztl_admin / vault / auto_cachain
   ]
 }
 
