@@ -47,6 +47,18 @@ resource "google_compute_project_metadata_item" "tls_chain" {
   }
 }
 
+resource "google_compute_project_metadata_item" "auto_cachain" {
+  key   = "zentral_auto_cachain"
+  value = "UNDEFINED"
+
+  # not managed by tf
+  lifecycle {
+    ignore_changes = [
+      value
+    ]
+  }
+}
+
 resource "google_compute_project_metadata_item" "tls_cachain" {
   key   = "zentral_tls_cachain"
   value = var.tls_cachain
