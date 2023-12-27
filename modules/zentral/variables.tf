@@ -70,6 +70,10 @@ variable "tls_cachain" {
   default = "UNDEFINED"
 }
 
+variable "mdm_cachain" {
+  default = "UNDEFINED"
+}
+
 variable "distribute_tls_server_certs" {
   default = "0"
 }

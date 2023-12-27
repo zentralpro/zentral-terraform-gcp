@@ -52,6 +52,11 @@ resource "google_compute_project_metadata_item" "tls_cachain" {
   value = var.tls_cachain
 }
 
+resource "google_compute_project_metadata_item" "mdm_cachain" {
+  key   = "zentral_mdm_cachain"
+  value = var.mdm_cachain
+}
+
 resource "google_compute_project_metadata_item" "distribute_tls_server_certs" {
   key   = "zentral_distribute_tls_server_certs"
   value = var.distribute_tls_server_certs
