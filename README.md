@@ -308,6 +308,7 @@ GCP predefined roles covering the necessary permissions to run the TF setup:
 |`google_secret_manager_secret`<br>`google_secret_manager_secret_iam_member`<br>`google_secret_manager_secret_version`| |`roles/secretmanager.admin`|[access](https://cloud.google.com/secret-manager/docs/access-control)|
 |`google_sql_database`<br>`google_sql_database_instance`<br>`google_sql_user`| |`roles/cloudsql.admin`|[access](https://cloud.google.com/sql/docs/postgres/project-access-control)|
 |`google_storage_bucket`<br>`google_storage_bucket_iam_member`<br>and the TF state backend| |`roles/storage.admin`|[roles](https://cloud.google.com/storage/docs/access-control/iam-roles)|
+|`google_kms_key_ring`<br>`google_kms_crypto_key`|To manage the KMS crypto key for the Zentral secret engine.|`roles/cloudkms.admin`|[roles](https://cloud.google.com/kms/docs/reference/permissions-and-roles#cloudkms.admin)|
 |**ONLY IF ELASTICSEARCH INSTANCE:**||||
 |`google_service_account_key`|To manage the SA key for the ES backups|`roles/iam.serviceAccountKeyAdmin`|[access](https://cloud.google.com/iam/docs/understanding-roles#iam.serviceAccountKeyAdmin)|
 |**ONLY IF CLOUD FUNCTION:**||||

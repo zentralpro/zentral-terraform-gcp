@@ -31,6 +31,7 @@ resource "google_project_iam_member" "terraform" {
     "roles/secretmanager.admin",
     "roles/cloudsql.admin",
     "roles/storage.admin",
+    "roles/cloudkms.admin",
     # cloud function
     "roles/appengine.appAdmin",
     "roles/appengine.appCreator",
