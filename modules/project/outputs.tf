@@ -16,3 +16,7 @@ output "number" {
 output "terraform_service_account_email" {
   value = google_service_account.terraform.email
 }
+
+output "workload_identity_provider" {
+  value = length(google_iam_workload_identity_pool_provider.github-actions) > 0 ? google_iam_workload_identity_pool_provider.github-actions[0].name : null
+}
