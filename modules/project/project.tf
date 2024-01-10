@@ -65,8 +65,14 @@ resource "google_storage_bucket" "terraform" {
 # the service usage API needs to be activated from outside the project
 # to allow the service account to activate the other ones
 
-resource "google_project_service" "service" {
+resource "google_project_service" "service_usage" {
   project            = google_project.this.project_id
   service            = "serviceusage.googleapis.com"
+  disable_on_destroy = false
+}
+
+resource "google_project_service" "iam_credentials" {
+  project            = google_project.this.project_id
+  service            = "iamcredentials.googleapis.com"
   disable_on_destroy = false
 }
