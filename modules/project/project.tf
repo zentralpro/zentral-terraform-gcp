@@ -6,6 +6,15 @@ resource "google_project" "this" {
   org_id              = var.org_id
   billing_account     = var.billing_account
   auto_create_network = false
+
+  lifecycle {
+    ignore_changes = [
+      org_id,
+      folder_id,
+      billing_account,
+      auto_create_network
+    ]
+  }
 }
 
 # service account for terraform
