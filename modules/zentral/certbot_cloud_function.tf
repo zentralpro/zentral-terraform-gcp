@@ -15,7 +15,6 @@ resource "google_project_iam_custom_role" "certbot" {
     "compute.globalOperations.get",
     "compute.projects.get",
     "compute.projects.setCommonInstanceMetadata",
-    "iam.serviceAccounts.actAs",
   ]
 }
 
