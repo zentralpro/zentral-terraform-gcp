@@ -101,12 +101,20 @@ resource "google_project_iam_custom_role" "gcs_signing" {
   ]
 }
 
-# bind the role to the web and worker service accounts
-resource "google_project_iam_binding" "gcs_signing" {
-  role = google_project_iam_custom_role.gcs_signing.id
-
+# allow the web SA to sign blobs with its own ID
+resource "google_service_account_iam_binding" "web_gcs_signing" {
+  service_account_id = google_service_account.web.name
+  role               = google_project_iam_custom_role.gcs_signing.id
   members = [
-    "serviceAccount:${google_service_account.web.email}",
+    "serviceAccount:${google_service_account.web.email}"
+  ]
+}
+
+# allow the worker SA to sign blobs with its own ID
+resource "google_service_account_iam_binding" "worker_gcs_signing" {
+  service_account_id = google_service_account.worker.name
+  role               = google_project_iam_custom_role.gcs_signing.id
+  members = [
     "serviceAccount:${google_service_account.worker.email}"
   ]
 }
