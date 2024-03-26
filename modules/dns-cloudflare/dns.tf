@@ -4,12 +4,16 @@ data "cloudflare_zones" "this" {
   }
 }
 
+locals {
+  zone_id = lookup(data.cloudflare_zones.this.zones[0], "id")
+}
+
 provider "cloudflare" {
   api_token = var.api_token
 }
 
 resource "cloudflare_record" "fqdn" {
-  zone_id = lookup(data.cloudflare_zones.this.zones[0], "id")
+  zone_id = local.zone_id
   name    = element(split(".", var.fqdn), 0)
   type    = "A"
   value   = var.lb_ip
@@ -19,7 +23,7 @@ resource "cloudflare_record" "fqdn" {
 
 resource "cloudflare_record" "fqdn_mtls" {
   count   = var.fqdn_mtls != "UNDEFINED" ? 1 : 0
-  zone_id = lookup(data.cloudflare_zones.this.zones[0], "id")
+  zone_id = local.zone_id
   name    = element(split(".", var.fqdn_mtls), 0)
   type    = "A"
   value   = var.lb_ip
