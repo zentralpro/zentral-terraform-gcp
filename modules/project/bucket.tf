@@ -7,7 +7,21 @@ resource "google_storage_bucket" "terraform" {
   uniform_bucket_level_access = true
 }
 
-resource "google_storage_bucket_iam_member" "terraform_config" {
+resource "google_storage_bucket_iam_member" "terraform_config_ro" {
+  count = length(google_service_account.terraform_config) > 0 ? 1 : 0
+
+  bucket = google_storage_bucket.terraform.name
+  role   = "roles/storage.objectViewer"
+  member = "serviceAccount:${google_service_account.terraform_config[0].email}"
+
+  condition {
+    title       = "Not the infra subfolder"
+    description = "Block access to the infra/ subfolder"
+    expression  = "!resource.name.startsWith('projects/_/buckets/${google_storage_bucket.terraform.name}/objects/infra/')"
+  }
+}
+
+resource "google_storage_bucket_iam_member" "terraform_config_rw" {
   count = length(google_service_account.terraform_config) > 0 ? 1 : 0
 
   bucket = google_storage_bucket.terraform.name
@@ -17,6 +31,6 @@ resource "google_storage_bucket_iam_member" "terraform_config" {
   condition {
     title       = "Only config subfolder"
     description = "Objects in the config/ subfolder"
-    expression  = "resource.name.startsWith('projects/_/buckets/${google_storage_bucket.terraform.name}/config/')"
+    expression  = "resource.name.startsWith('projects/_/buckets/${google_storage_bucket.terraform.name}/objects/config/')"
   }
 }
