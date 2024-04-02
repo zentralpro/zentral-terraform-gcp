@@ -28,7 +28,13 @@ resource "google_iam_workload_identity_pool_provider" "github-actions" {
   oidc {
     issuer_uri = "https://token.actions.githubusercontent.com"
   }
-  attribute_condition = "assertion.repository=='${var.github_infra_repository}'"
+  attribute_condition = join(
+    " || ",
+    compact([
+      var.github_infra_repository != null ? "assertion.repository=='${var.github_infra_repository}'" : "",
+      var.github_config_repository != null ? "assertion.repository=='${var.github_config_repository}'" : ""
+    ])
+  )
 }
 
 resource "google_service_account_iam_binding" "infra" {
