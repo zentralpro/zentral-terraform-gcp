@@ -13,10 +13,14 @@ output "number" {
   description = "The project number"
 }
 
-output "terraform_service_account_email" {
-  value = google_service_account.terraform.email
-}
-
 output "workload_identity_provider" {
   value = length(google_iam_workload_identity_pool_provider.github-actions) > 0 ? google_iam_workload_identity_pool_provider.github-actions[0].name : null
+}
+
+output "terraform_infra_service_account_email" {
+  value = google_service_account.terraform_infra.email
+}
+
+output "terraform_config_service_account_email" {
+  value = length(google_service_account.terraform_config) > 0 ? google_service_account.terraform_config[0].email : null
 }

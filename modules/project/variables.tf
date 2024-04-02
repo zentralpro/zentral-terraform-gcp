@@ -23,8 +23,14 @@ variable "add_required_es_roles" {
   default     = true
 }
 
-variable "github_repository" {
-  description = "Name of the GitHub repository for the GitHub actions authentication"
+variable "github_infra_repository" {
+  description = "Name of the GitHub infrastructure repository for the GitHub actions authentication"
+  type        = string
+  default     = null
+}
+
+variable "github_config_repository" {
+  description = "Name of the GitHub configuration repository for the GitHub actions authentication"
   type        = string
   default     = null
 }

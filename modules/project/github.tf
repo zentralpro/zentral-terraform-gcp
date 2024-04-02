@@ -1,5 +1,9 @@
+locals {
+  workload_identity_count = (var.github_infra_repository != null || var.github_config_repository != null) ? 1 : 0
+}
+
 resource "google_iam_workload_identity_pool" "github-actions" {
-  count = var.github_repository != null ? 1 : 0
+  count = local.workload_identity_count
 
   project                   = var.project_id
   workload_identity_pool_id = "github-actions"
@@ -8,7 +12,7 @@ resource "google_iam_workload_identity_pool" "github-actions" {
 }
 
 resource "google_iam_workload_identity_pool_provider" "github-actions" {
-  count = var.github_repository != null ? 1 : 0
+  count = local.workload_identity_count
 
   project                            = var.project_id
   workload_identity_pool_id          = google_iam_workload_identity_pool.github-actions[0].workload_identity_pool_id
@@ -24,15 +28,25 @@ resource "google_iam_workload_identity_pool_provider" "github-actions" {
   oidc {
     issuer_uri = "https://token.actions.githubusercontent.com"
   }
-  attribute_condition = "assertion.repository=='${var.github_repository}'"
+  attribute_condition = "assertion.repository=='${var.github_infra_repository}'"
 }
 
-resource "google_service_account_iam_binding" "terraform" {
-  count = var.github_repository != null ? 1 : 0
+resource "google_service_account_iam_binding" "infra" {
+  count = var.github_infra_repository != null ? 1 : 0
 
-  service_account_id = google_service_account.terraform.name
+  service_account_id = google_service_account.terraform_infra.name
   role               = "roles/iam.workloadIdentityUser"
   members = [
-    "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github-actions[0].name}/attribute.repository/${var.github_repository}"
+    "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github-actions[0].name}/attribute.repository/${var.github_infra_repository}"
+  ]
+}
+
+resource "google_service_account_iam_binding" "config" {
+  count = var.github_config_repository != null ? 1 : 0
+
+  service_account_id = google_service_account.terraform_config[0].name
+  role               = "roles/iam.workloadIdentityUser"
+  members = [
+    "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github-actions[0].name}/attribute.repository/${var.github_config_repository}"
   ]
 }
