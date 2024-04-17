@@ -122,7 +122,7 @@ resource "google_cloudfunctions_function" "certbot" {
   count       = var.certbot_cloud_function ? 1 : 0
   name        = "ztl-certbot"
   description = "Zentral certbot cloud function"
-  runtime     = "python38"
+  runtime     = "python310"
   entry_point = "main"
 
   source_archive_bucket = var.certbot_source_archive_bucket
