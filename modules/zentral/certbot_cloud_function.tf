@@ -125,8 +125,8 @@ resource "google_cloudfunctions_function" "certbot" {
   runtime     = "python38"
   entry_point = "main"
 
-  source_archive_bucket = "sublime-delight-encoder-certbot-cloud-function"
-  source_archive_object = "certbot_cloud_function-v0.1.108.zip"
+  source_archive_bucket = var.certbot_source_archive_bucket
+  source_archive_object = var.certbot_source_archive_object
 
   service_account_email = google_service_account.certbot[0].email
   available_memory_mb   = 256

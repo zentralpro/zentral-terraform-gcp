@@ -357,6 +357,16 @@ variable "certbot_cloud_function" {
   default     = false
 }
 
+variable "certbot_source_archive_bucket" {
+  description = "Name of the GCS bucket where the certbot cloud function source archive is published"
+  default     = "zentral-pro-services-artifacts"
+}
+
+variable "certbot_source_archive_object" {
+  description = "Path to the certbot cloud function source archive in the GCS bucket"
+  default     = "ztl_admin/certbot_cloud_function/certbot_cloud_function-v0.1.148.zip"
+}
+
 # DANGER - ONLY FOR TESTS!!!
 variable "destroy_all_resources" {
   description = "Set to true during testing to remove the db deletion protection and allow non-empty bucket deletion"
