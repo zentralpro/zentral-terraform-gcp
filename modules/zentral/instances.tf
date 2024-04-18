@@ -236,21 +236,21 @@ resource "google_compute_region_instance_group_manager" "worker" {
 
 # provided ek image by ID
 data "google_compute_image" "ek_by_id" {
-  count   = var.ek_image_id == "LATEST" ? 0 : 1
+  count   = var.ek_instance_count > 0 && var.ek_image_id == "LATEST" ? 0 : 1
   filter  = "id = \"${var.ek_image_id}\""
   project = var.images_project
 }
 
 # provided ek image
 data "google_compute_image" "ek" {
-  count   = var.ek_image == "LATEST" ? 0 : 1
+  count   = var.ek_instance_count > 0 && var.ek_image == "LATEST" ? 0 : 1
   name    = var.ek_image
   project = var.images_project
 }
 
 # latest ek image when terraform runs
 data "google_compute_image" "ek_latest" {
-  count   = var.ek_image_id == "LATEST" && var.ek_image == "LATEST" ? 1 : 0
+  count   = var.ek_instance_count > 0 && var.ek_image_id == "LATEST" && var.ek_image == "LATEST" ? 1 : 0
   family  = length(regexall("^t2a.*", var.ek_machine_type)) > 0 ? "ztl-ek-arm64" : "ztl-ek"
   project = var.images_project
 }
