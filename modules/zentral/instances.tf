@@ -236,14 +236,14 @@ resource "google_compute_region_instance_group_manager" "worker" {
 
 # provided ek image by ID
 data "google_compute_image" "ek_by_id" {
-  count   = var.ek_instance_count > 0 && var.ek_image_id == "LATEST" ? 0 : 1
+  count   = var.ek_instance_count == 0 || var.ek_image_id == "LATEST" ? 0 : 1
   filter  = "id = \"${var.ek_image_id}\""
   project = var.images_project
 }
 
 # provided ek image
 data "google_compute_image" "ek" {
-  count   = var.ek_instance_count > 0 && var.ek_image == "LATEST" ? 0 : 1
+  count   = var.ek_instance_count == 0 || var.ek_image == "LATEST" ? 0 : 1
   name    = var.ek_image
   project = var.images_project
 }
