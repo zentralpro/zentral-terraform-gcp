@@ -16,7 +16,7 @@ resource "cloudflare_record" "fqdn" {
   zone_id = local.zone_id
   name    = element(split(".", var.fqdn), 0)
   type    = "A"
-  value   = var.lb_ip
+  content = var.lb_ip
   ttl     = var.proxied ? 1 : var.ttl
   proxied = var.proxied
 }
@@ -26,7 +26,7 @@ resource "cloudflare_record" "fqdn_mtls" {
   zone_id = local.zone_id
   name    = element(split(".", var.fqdn_mtls), 0)
   type    = "A"
-  value   = var.lb_ip
+  content = var.lb_ip
   ttl     = var.proxied ? 1 : var.ttl
   proxied = var.proxied
 }
