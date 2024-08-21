@@ -156,3 +156,8 @@ resource "google_compute_project_metadata_item" "nessus_groups" {
   key   = "zentral_nessus_groups"
   value = var.nessus_groups
 }
+
+resource "google_compute_project_metadata_item" "ident_gateway_challenge_hashed" {
+  key   = "zentral_ident_gateway_challenge_hashed"
+  value = length(random_password.ident_gateway_challenge) > 0 ? random_password.ident_gateway_challenge[0].bcrypt_hash : "UNDEFINED"
+}

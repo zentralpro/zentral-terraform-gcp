@@ -12,6 +12,47 @@ resource "google_compute_project_metadata_item" "ident_gateway_config_json" {
 }
 
 #
+# IDent Gateway challenge
+#
+
+resource "random_password" "ident_gateway_challenge" {
+  count  = local.configure_igw ? 1 : 0
+  length = 17
+}
+
+resource "google_secret_manager_secret" "ident_gateway_challenge" {
+  count = local.configure_igw ? 1 : 0
+
+  secret_id = "ztl-ident-gateway-challenge"
+
+  replication {
+    user_managed {
+      replicas {
+        location = data.google_client_config.current.region
+      }
+    }
+  }
+}
+
+# IDent Gateway challenge read access for web service accounts
+resource "google_secret_manager_secret_iam_member" "ident_gateway_challenge_web" {
+  count = local.configure_igw ? 1 : 0
+
+  secret_id = google_secret_manager_secret.ident_gateway_challenge[0].secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.web.email}"
+}
+
+# IDent Gateway challenge value
+resource "google_secret_manager_secret_version" "ident_gateway_challenge" {
+  count = local.configure_igw ? 1 : 0
+
+  secret      = google_secret_manager_secret.ident_gateway_challenge[0].id
+  secret_data = random_password.ident_gateway_challenge[0].result
+}
+
+
+#
 # IDent Gateway RA certificate and private key
 #
 
