@@ -56,7 +56,7 @@ resource "google_compute_instance_template" "web" {
   metadata_startup_script = <<EOT
 #!/bin/bash
 systemctl start google-guest-agent
-ztl_admin --no-ts setup
+ztl_admin --no-ts --set-sd-module gcp setup
 EOT
 
   lifecycle {
@@ -172,7 +172,7 @@ resource "google_compute_instance_template" "worker" {
   metadata_startup_script = <<EOT
 #!/bin/bash
 systemctl start google-guest-agent
-ztl_admin --no-ts setup
+ztl_admin --no-ts --set-sd-module gcp setup
 EOT
 
   lifecycle {
@@ -312,7 +312,7 @@ resource "google_compute_instance" "ek1" {
   metadata_startup_script = <<EOT
 #!/bin/bash
 systemctl start google-guest-agent
-ztl_admin --no-ts setup
+ztl_admin --no-ts --set-sd-module gcp setup
 EOT
 
   lifecycle {
@@ -419,7 +419,7 @@ resource "google_compute_instance" "monitoring" {
   metadata_startup_script = <<EOT
 #!/bin/bash
 systemctl start google-guest-agent
-ztl_admin --no-ts setup
+ztl_admin --no-ts --set-sd-module gcp setup
 EOT
 
   lifecycle {
@@ -512,7 +512,7 @@ resource "google_compute_instance" "vault" {
   metadata_startup_script = <<EOT
 #!/bin/bash
 systemctl start google-guest-agent
-ztl_admin --no-ts setup
+ztl_admin --no-ts --set-sd-module gcp setup
 EOT
 
   lifecycle {
