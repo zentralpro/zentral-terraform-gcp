@@ -140,13 +140,13 @@ resource "google_compute_firewall" "allow-prometheus-scraping" {
 # allow proxying for monitoring
 resource "google_compute_firewall" "allow-monitoring-proxying" {
   name        = "allow-monitoring-proxying"
-  description = "Allow 8000-80001 from 'web' to 'monitoring'"
+  description = "Allow 8001 (Grafana) and 9090 (Prometheus) from 'web' to 'monitoring'"
 
   network = google_compute_network.zentral.name
 
   allow {
     protocol = "tcp"
-    ports    = ["8000-8001"]
+    ports    = ["8001", "9090"]
   }
 
   source_tags = ["web"]
