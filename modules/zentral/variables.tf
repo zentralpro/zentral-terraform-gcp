@@ -91,6 +91,11 @@ variable "real_ip_header" {
   default     = "UNDEFINED"
 }
 
+variable "origin_pull_ca_pem" {
+  description = "PEM CA file that can be used to authenticate origin for the non-mTLS server (like Cloudflare)"
+  default     = "UNDEFINED"
+}
+
 variable "collect_nginx_access_log" {
   description = "Boolean to activate or deactivate the collection of the Nginx access log."
   default     = true
