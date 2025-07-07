@@ -153,6 +153,22 @@ resource "google_compute_firewall" "allow-monitoring-proxying" {
   target_tags = ["monitoring"]
 }
 
+# allow Grafana access from worker for configuration
+resource "google_compute_firewall" "allow-worker-grafana" {
+  name        = "allow-worker-grafana"
+  description = "Allow 8001 (Grafana) from 'worker' to 'monitoring'"
+
+  network = google_compute_network.zentral.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["8001"]
+  }
+
+  source_tags = ["worker"]
+  target_tags = ["monitoring"]
+}
+
 # allow connections from the web instances to the vault instances
 resource "google_compute_firewall" "allow-web-vault" {
   name        = "allow-web-vault"
