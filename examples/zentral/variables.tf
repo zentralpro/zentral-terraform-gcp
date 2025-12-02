@@ -3,11 +3,6 @@ variable "smtp_relay_password" {
   sensitive = true
 }
 
-variable "datadog_api_key" {
-  default   = "UNDEFINED"
-  sensitive = true
-}
-
 variable "splunk_hec_token" {
   default   = "UNDEFINED"
   sensitive = true

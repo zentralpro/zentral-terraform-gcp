@@ -14,5 +14,5 @@ terraform {
 data "google_client_config" "current" {}
 
 locals {
-  monitoring_instance_count = var.datadog_api_key == "UNDEFINED" ? 1 : 0
+  monitoring_instance_count = 1 # TODO refactor
 }

@@ -120,20 +120,6 @@ variable "ident_gateway_config_json" {
   default     = "UNDEFINED"
 }
 
-# datadog configuration
-
-variable "datadog_site" {
-  default = "datadoghq.com"
-}
-
-variable "datadog_service" {
-  default = "Zentral"
-}
-
-variable "datadog_api_key" {
-  default = "UNDEFINED"
-}
-
 # splunk
 
 variable "splunk_hec_token" {

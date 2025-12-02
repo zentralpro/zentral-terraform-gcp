@@ -126,7 +126,7 @@ data "google_iam_role" "log-writer" {
 
 # assign logging.logWriter role to the service accounts who need it
 resource "google_project_iam_binding" "logging" {
-  count = var.datadog_api_key == "UNDEFINED" ? 1 : 0
+  count = 1 # TODO refactor
   role  = data.google_iam_role.log-writer.id
 
   members = compact([
@@ -145,7 +145,7 @@ data "google_iam_role" "metric-writer" {
 
 # assign monitoring.metricWriter role to the service accounts who need it
 resource "google_project_iam_binding" "monitoring" {
-  count = var.datadog_api_key == "UNDEFINED" ? 1 : 0
+  count = 1 # TODO refactor
   role  = data.google_iam_role.metric-writer.id
 
   members = compact([
@@ -164,7 +164,7 @@ data "google_iam_role" "monitoring-viewer" {
 
 # assign monitoring.viewer role to the service accounts who need it
 resource "google_project_iam_binding" "monitoring-viewer" {
-  count = var.datadog_api_key == "UNDEFINED" ? 1 : 0
+  count = 1 # TODO refactor
   role  = data.google_iam_role.monitoring-viewer.id
 
   members = [
@@ -180,7 +180,7 @@ data "google_iam_role" "logging-view-accessor" {
 
 # assign monitoring.viewer role to the service accounts who need it
 resource "google_project_iam_binding" "logging-view-accessor" {
-  count = var.datadog_api_key == "UNDEFINED" ? 1 : 0
+  count = 1 # TODO refactor
   role  = data.google_iam_role.logging-view-accessor.id
 
   members = [
@@ -196,7 +196,7 @@ data "google_iam_role" "logging-viewer" {
 
 # assign monitoring.viewer role to the service accounts who need it
 resource "google_project_iam_binding" "logging-viewer" {
-  count = var.datadog_api_key == "UNDEFINED" ? 1 : 0
+  count = 1 # TODO refactor
   role  = data.google_iam_role.logging-viewer.id
 
   members = [

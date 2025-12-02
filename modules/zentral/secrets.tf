@@ -270,66 +270,6 @@ resource "google_secret_manager_secret_version" "geolite2_license_key" {
 }
 
 #
-# datadog_api_key: api key for the datadog agent
-#
-
-# datadog_api_key secret
-resource "google_secret_manager_secret" "datadog_api_key" {
-  secret_id = "ztl-datadog-api-key"
-
-  replication {
-    user_managed {
-      replicas {
-        location = data.google_client_config.current.region
-      }
-    }
-  }
-}
-
-# datadog_api_key read access for ek service accounts
-resource "google_secret_manager_secret_iam_member" "datadog_api_key_ek" {
-  count     = var.ek_instance_count > 0 ? 1 : 0
-  secret_id = google_secret_manager_secret.datadog_api_key.secret_id
-  role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_service_account.ek[0].email}"
-}
-
-# datadog_api_key read access for monitoring service accounts
-resource "google_secret_manager_secret_iam_member" "datadog_api_key_monitoring" {
-  secret_id = google_secret_manager_secret.datadog_api_key.secret_id
-  role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_service_account.monitoring.email}"
-}
-
-# datadog_api_key read access for vault service accounts
-resource "google_secret_manager_secret_iam_member" "datadog_api_key_vault" {
-  count     = var.vault_instance_count > 0 ? 1 : 0
-  secret_id = google_secret_manager_secret.datadog_api_key.secret_id
-  role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_service_account.vault[0].email}"
-}
-
-# datadog_api_key read access for web service accounts
-resource "google_secret_manager_secret_iam_member" "datadog_api_key_web" {
-  secret_id = google_secret_manager_secret.datadog_api_key.secret_id
-  role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_service_account.web.email}"
-}
-
-# datadog_api_key read access for worker service accounts
-resource "google_secret_manager_secret_iam_member" "datadog_api_key_worker" {
-  secret_id = google_secret_manager_secret.datadog_api_key.secret_id
-  role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_service_account.worker.email}"
-}
-
-# datadog_api_key value
-resource "google_secret_manager_secret_version" "datadog_api_key" {
-  secret      = google_secret_manager_secret.datadog_api_key.id
-  secret_data = var.datadog_api_key
-}
-
-#
 # splunk_hec_token: Token for Splunk HEC
 #
 
